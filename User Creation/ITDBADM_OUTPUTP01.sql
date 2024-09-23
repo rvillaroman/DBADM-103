@@ -23,12 +23,8 @@ GRANT SELECT                         ON couriers                 TO 'salesmodule
 GRANT SELECT                         ON credit_payments          TO 'salesmodule';
 GRANT SELECT, UPDATE                 ON current_products         TO 'salesmodule';
 GRANT SELECT                         ON customers                TO 'salesmodule';
-GRANT SELECT                         ON departments              TO 'salesmodule';
 GRANT SELECT                         ON discontinued_products    TO 'salesmodule';
 GRANT SELECT                         ON employees                TO 'salesmodule';
-GRANT SELECT                         ON inventory_managers       TO 'salesmodule';
-GRANT SELECT                         ON non_salesrepresentatives TO 'salesmodule';
-GRANT SELECT                         ON offices                  TO 'salesmodule';
 GRANT SELECT, INSERT, UPDATE, DELETE ON orderdetails             TO 'salesmodule';
 GRANT SELECT, INSERT, UPDATE, DELETE ON orders                   TO 'salesmodule';
 GRANT SELECT                         ON payment_orders           TO 'salesmodule';
@@ -39,8 +35,6 @@ GRANT SELECT                         ON product_retail           TO 'salesmodule
 GRANT SELECT, UPDATE                 ON product_wholesale        TO 'salesmodule';
 GRANT SELECT                         ON productlines             TO 'salesmodule';
 GRANT SELECT                         ON products                 TO 'salesmodule';
-GRANT SELECT                         ON ref_checkno              TO 'salesmodule';
-GRANT SELECT                         ON ref_paymentreferenceno   TO 'salesmodule';
 GRANT SELECT                         ON ref_shipmentstatus       TO 'salesmodule';
 GRANT SELECT                         ON riders                   TO 'salesmodule';
 GRANT SELECT                         ON sales_managers           TO 'salesmodule';
@@ -48,6 +42,7 @@ GRANT SELECT                         ON salesrepassignments      TO 'salesmodule
 GRANT SELECT                         ON salesrepresentatives     TO 'salesmodule';
 GRANT SELECT, INSERT, UPDATE, DELETE ON shipments                TO 'salesmodule';
 GRANT SELECT, INSERT, UPDATE, DELETE ON shipmentstatus           TO 'salesmodule';
+
 
 -- inventory module
 GRANT SELECT, INSERT, UPDATE, DELETE ON current_products         TO 'inventorymodule';
