@@ -44,24 +44,24 @@ BEGIN
     FROM orders
     WHERE orders.orderNumber = NEW.orderNumber;
 
-    -- Restriction: No updates allowed once the order status is "shipped"
+    -- No updates allowed once the order status is "shipped"
     IF order_status = 'shipped' THEN
         SIGNAL SQLSTATE '45000'
         SET MESSAGE_TEXT = 'No updates are allowed on ordered products once the order has shipped.';
     END IF;
 
-    -- Restriction: Only allow updates on quantityOrdered and priceEach
+    -- Only allow updates on quantityOrdered and priceEach
     IF NEW.quantityOrdered != OLD.quantityOrdered OR NEW.priceEach != OLD.priceEach THEN
         -- Check for allowed fields (quantity and price)
         IF NEW.referenceNo != OLD.referenceNo THEN
-            -- Only allow updating referenceNo if the order is shipped
+            -- reference no should be updated only if shipped
             IF order_status != 'shipped' THEN
                 SIGNAL SQLSTATE '45000'
                 SET MESSAGE_TEXT = 'Reference number can only be updated when the order status is shipped';
             END IF;
         END IF;
     ELSE
-        -- Raise an error if any other field is being updated
+        -- error if other fields are being updated
         SIGNAL SQLSTATE '45000'
         SET MESSAGE_TEXT = 'Only quantityOrdered and priceEach can be updated on ordered products';
     END IF;
