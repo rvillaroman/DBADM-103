@@ -1,5 +1,37 @@
 DROP TRIGGER IF EXISTS orders_BEFORE_UPDATE;
 DELIMITER $$
+CREATE TRIGGER `orders_BEFORE_UPDATE` BEFORE UPDATE ON `orders` FOR EACH ROW BEGIN
+	DECLARE errormessage	VARCHAR(200);
+    
+    IF (new.ordernumber != old.ordernumber) THEN
+		SET errormessage = CONCAT("Order Number  ", old.ordernumber, " cannot be updated to a new value of ", new.ordernumber);
+		SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = errormessage;
+    END IF;
+    
+    -- Check if the updated orderdate is before the original orderdate
+    IF (new.orderdate < old.orderdate) THEN
+		SET errormessage = CONCAT("Updated orderdate cannot be less than the origianl date of ", old.orderdate);
+		SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = errormessage;
+    END IF;
+    
+    IF (TIMESTAMPDIFF(DAY, new.orderdate, new.requireddate) < 3) THEN
+		SET errormessage = CONCAT("Required Data cannot be less than 3 days from the Order Date of ", new.orderdate);
+		SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = errormessage;
+    END IF;
+    
+        -- Check for the precense of customer
+    IF (new.customernumber IS NULL) THEN
+		SET errormessage = CONCAT("Order number ", new.ordernumber, " cannot be updated without a customer");
+		SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = errormessage;
+    END IF;
+    
+
+    
+END $$
+DELIMITER ;
+
+DROP TRIGGER IF EXISTS orderdetails_restrictions;
+DELIMITER $$
 
 CREATE TRIGGER orderdetails_restrictions
 BEFORE UPDATE ON orderdetails
@@ -37,6 +69,7 @@ END $$
 
 DELIMITER ;
 
+DROP TRIGGER IF EXISTS orderdetails_delete_restriction;
 DELIMITER $$
 
 CREATE TRIGGER orderdetails_delete_restriction
