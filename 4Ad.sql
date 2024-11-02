@@ -1,0 +1,59 @@
+DROP TRIGGER IF EXISTS orders_BEFORE_UPDATE;
+DELIMITER $$
+
+CREATE TRIGGER orderdetails_restrictions
+BEFORE UPDATE ON orderdetails
+FOR EACH ROW
+BEGIN
+    DECLARE order_status VARCHAR(50);
+
+    -- Retrieve the status from the orders table for the relevant orderNumber
+    SELECT status INTO order_status
+    FROM orders
+    WHERE orders.orderNumber = NEW.orderNumber;
+
+    -- Restriction: No updates allowed once the order status is "shipped"
+    IF order_status = 'shipped' THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'No updates are allowed on ordered products once the order has shipped.';
+    END IF;
+
+    -- Restriction: Only allow updates on quantityOrdered and priceEach
+    IF NEW.quantityOrdered != OLD.quantityOrdered OR NEW.priceEach != OLD.priceEach THEN
+        -- Check for allowed fields (quantity and price)
+        IF NEW.referenceNo != OLD.referenceNo THEN
+            -- Only allow updating referenceNo if the order is shipped
+            IF order_status != 'shipped' THEN
+                SIGNAL SQLSTATE '45000'
+                SET MESSAGE_TEXT = 'Reference number can only be updated when the order status is shipped';
+            END IF;
+        END IF;
+    ELSE
+        -- Raise an error if any other field is being updated
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Only quantityOrdered and priceEach can be updated on ordered products';
+    END IF;
+END $$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE TRIGGER orderdetails_delete_restriction
+BEFORE DELETE ON orderdetails
+FOR EACH ROW
+BEGIN
+    DECLARE order_status VARCHAR(50);
+
+    SELECT status INTO order_status
+    FROM orders
+    WHERE orders.orderNumber = OLD.orderNumber;
+
+    -- Once the status of the order reached “Shipped”, no activity on the ordered products should be allowed to happen."
+    IF order_status = 'shipped' THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Ordered products cannot be deleted once the order has shipped.';
+    END IF;
+END $$
+
+DELIMITER ;
