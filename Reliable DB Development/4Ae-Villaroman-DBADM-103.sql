@@ -47,17 +47,22 @@ BEGIN
 END $$ 
 DELIMITER ;
 
--- Trigger to Prevent Order Deletion (BEFORE DELETE)
-DROP TRIGGER IF EXISTS orders_BEFORE_DELETE;
+-- Prevent Modifications on Ordered Products if Order is Cancelled
+DROP TRIGGER IF EXISTS orderdetails_BEFORE_UPDATE;
 DELIMITER $$
 
-CREATE TRIGGER orders_BEFORE_DELETE
-BEFORE DELETE ON orders
-FOR EACH ROW 
+CREATE TRIGGER orderdetails_BEFORE_UPDATE
+BEFORE UPDATE ON orderdetails
+FOR EACH ROW
 BEGIN
-    -- Prevent deletion of orders by raising an error
-    SIGNAL SQLSTATE '45000' 
-    SET MESSAGE_TEXT = 'Orders cannot be deleted, only cancelled.';
+    DECLARE errormessage VARCHAR(200);
+
+    -- Prevent updates on orderdetails if the order is cancelled
+    IF (SELECT status FROM orders WHERE orderNumber = NEW.orderNumber) = 'Cancelled' THEN
+        SET errormessage = 'No modifications allowed on products of a cancelled order.';
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = errormessage;
+    END IF;
+
 END $$ 
 DELIMITER ;
 
