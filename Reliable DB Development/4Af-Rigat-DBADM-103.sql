@@ -11,7 +11,7 @@ BEGIN
     UPDATE orders
     SET 
         status = 'Cancelled',
-        comments = CONCAT(IFNULL(comments, ''), ' | Automatically cancelled by system due to non-shipping within one week.')
+        comments = 'Automatically cancelled by system due to non-shipping within one week.'
     WHERE 
         status != 'Shipped' 
         AND shippedDate IS NULL 
