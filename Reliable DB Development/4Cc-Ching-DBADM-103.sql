@@ -1,9 +1,29 @@
+-- ITDBADM-103
+-- Ching, Bryan Nicholas 
+
+-- 4C.c
+-- Employee Records are not deleted. When employees resign that their records get deactivated, and no changes should be allowed on the record. If the
+-- resigned employee reapplied to the company, a new employee record is created for the individual.
+
+-- Instructions
 -- need to add an isActive field to set a employee as resigned or is working remove comment to add it
+-- cannot delete the data. Make the isActive status 0
 -- ALTER TABLE employees
 -- ADD COLUMN isActive BOOLEAN NOT NULL DEFAULT 1;
 
+-- Test Case 1
+-- Try to delete an employee row
+-- Test Case 2
+-- Prevent Modification on records that are inactive or are 0
+-- Test Case 3
+-- Try to rehire an employee using the procedure
+-- To test out the procedure below
+-- SELECT * FROM employees;
+-- CALL rehire_employee(1286, 'x1234', 'newemail@example.com', 'SalesRep', 'IM');
 
--- cannot delete the data. Make the isActive status 0
+
+
+
 DELIMITER $$
 DROP TRIGGER IF EXISTS prevent_employee_deletion;
 CREATE TRIGGER prevent_employee_deletion
@@ -69,6 +89,3 @@ BEGIN
 END $$
 DELIMITER ;
 
--- To test out the procedure above
--- SELECT * FROM employees;
--- CALL rehire_employee(1286, 'x1234', 'newemail@example.com', 'SalesRep', 'IM');
