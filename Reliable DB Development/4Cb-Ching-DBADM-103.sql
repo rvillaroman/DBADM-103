@@ -1,3 +1,14 @@
+-- ITDBADM-103
+-- Ching, Bryan Nicholas 
+
+-- 4C.b
+-- Logically, not all the details about the employee can be modified. Only the extension and email, Job Title and Employee Type can be changed.
+
+-- Test Case 1
+-- Check if Extensio and email, job title and eployee can be changed
+-- Test Case 2
+-- Check if Lastname and Firstname cannot be changed
+
 
 DELIMITER $$
 DROP TRIGGER IF EXISTS restrict_employee_update;
