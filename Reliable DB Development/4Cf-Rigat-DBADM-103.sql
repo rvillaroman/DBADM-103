@@ -14,7 +14,7 @@ BEGIN
         UPDATE salesRepAssignments
         SET endDate = CURDATE()
         WHERE employeeNumber = NEW.employeeNumber
-          AND endDate IS NULL; -- Ensures only active assignments are affected
+          AND endDate IS NULL;
     END IF;
 END $$
 DELIMITER ;
