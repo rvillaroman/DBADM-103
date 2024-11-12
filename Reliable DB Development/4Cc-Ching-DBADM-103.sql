@@ -11,22 +11,36 @@
 -- ALTER TABLE employees
 -- ADD COLUMN isActive BOOLEAN NOT NULL DEFAULT 1;
 
--- Test Case 1
--- Try to delete an employee row
--- Test Case 2
--- Prevent Modification on records that are inactive or are 0
--- Test Case 3
--- Try to rehire an employee using the procedure
--- To test out the procedure below
+-- =============================================================
+-- 4CC TEST CASE 1: Verify deleting a row is allowed
+-- =============================================================
+
+-- DELETE FROM employees
+-- WHERE employeeNumber = 1165
+
+
+-- =============================================================
+-- 4CC TEST CASE 2: Verify if modification of records that are inactive is not allowed
+-- =============================================================
+-- UPDATE employees
+-- SET isActive = 0
+-- WHERE employeeNumber = 1076;
+-- UPDATE employees
+-- SET extension = "x9277" 
+-- WHERE employeeNumber = 1076;
+
+-- =============================================================
+-- 4CC TEST CASE 3: Verify if rehiring of employee is allowed retaining name
+-- =============================================================
 -- SELECT * FROM employees;
--- CALL rehire_employee(1286, 'x1234', 'newemail@example.com', 'SalesRep', 'IM');
+-- CALL 4CC_rehire_employee(1286, 'x1234', 'newemail@example.com', 'SalesRep', 'IM');
 
 
 
 
 DELIMITER $$
-DROP TRIGGER IF EXISTS prevent_employee_deletion;
-CREATE TRIGGER prevent_employee_deletion
+DROP TRIGGER IF EXISTS 4CC_prevent_employee_deletion;
+CREATE TRIGGER 4CC_prevent_employee_deletion
 BEFORE DELETE ON employees
 FOR EACH ROW
 BEGIN
@@ -37,8 +51,8 @@ DELIMITER ;
 
 -- Do not allow modification on the isActive 0 status
 DELIMITER $$
-DROP TRIGGER IF EXISTS restrict_inactive_employee_update;
-CREATE TRIGGER restrict_inactive_employee_update
+DROP TRIGGER IF EXISTS 4CC_restrict_inactive_employee_update;
+CREATE TRIGGER 4CC_restrict_inactive_employee_update
 BEFORE UPDATE ON employees
 FOR EACH ROW
 BEGIN
@@ -54,8 +68,8 @@ DELIMITER ;
 
 
 DELIMITER $$
-DROP PROCEDURE IF EXISTS rehire_employee;
-CREATE PROCEDURE rehire_employee (
+DROP PROCEDURE IF EXISTS 4CC_rehire_employee;
+CREATE PROCEDURE 4CC_rehire_employee (
     IN empNum INT,
     IN newExtension VARCHAR(10),
     IN newEmail VARCHAR(100),
