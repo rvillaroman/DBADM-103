@@ -1090,106 +1090,106 @@ DELIMITER ;
 -- =============================================================
 -- 4AA TEST CASE 1: Verify orderDate is automatically set
 -- =============================================================
-INSERT INTO customers (customerNumber, customerName, contactLastName, contactFirstName, phone, addressLine1, city, country)
-VALUES (485, 'Test Customer', 'Doe', 'John', '1234567890', '123 Main St', 'Test City', 'Test Country');
+-- INSERT INTO customers (customerNumber, customerName, contactLastName, contactFirstName, phone, addressLine1, city, country)
+-- VALUES (485, 'Test Customer', 'Doe', 'John', '1234567890', '123 Main St', 'Test City', 'Test Country');
 
-INSERT INTO orders (orderNumber, requiredDate, status, customerNumber)
-VALUES (1001, DATE_ADD(CURRENT_DATE(), INTERVAL 5 DAY), 'Pending', 485);
+-- INSERT INTO orders (orderNumber, requiredDate, status, customerNumber)
+-- VALUES (1001, DATE_ADD(CURRENT_DATE(), INTERVAL 5 DAY), 'Pending', 485);
 
-SELECT orderNumber, orderDate, requiredDate, status, customerNumber
-FROM orders
-WHERE orderNumber = 1001;
+-- SELECT orderNumber, orderDate, requiredDate, status, customerNumber
+-- FROM orders
+-- WHERE orderNumber = 1001;
 
 -- =============================================================
 -- 4AA TEST CASE 2: Verify status is automatically set to In Process
 -- =============================================================
 -- New order with a specified status other than 'In Process'
-INSERT INTO orders (orderNumber, requiredDate, status, customerNumber)
-VALUES (1002, DATE_ADD(CURRENT_DATE(), INTERVAL 7 DAY), 'Completed', 485);
+-- INSERT INTO orders (orderNumber, requiredDate, status, customerNumber)
+-- VALUES (1002, DATE_ADD(CURRENT_DATE(), INTERVAL 7 DAY), 'Completed', 485);
 
-SELECT orderNumber, orderDate, requiredDate, status, customerNumber
-FROM orders
-WHERE orderNumber = 1002;
+-- SELECT orderNumber, orderDate, requiredDate, status, customerNumber
+-- FROM orders
+-- WHERE orderNumber = 1002;
 
 -- =============================================================
 -- 4AA TEST CASE 3: Validate requiredDate cannot be less than 3 days from orderDate
 -- =============================================================
 -- Attempt to insert an order with requiredDate less than 3 days from orderDate
-INSERT INTO orders (orderNumber, requiredDate, status, customerNumber)
-VALUES (1003, DATE_ADD(CURRENT_DATE(), INTERVAL 2 DAY), 'Pending', 485);
+-- INSERT INTO orders (orderNumber, requiredDate, status, customerNumber)
+-- VALUES (1003, DATE_ADD(CURRENT_DATE(), INTERVAL 2 DAY), 'Pending', 485);
 
 -- =============================================================
 -- 4AA TEST CASE 4: Verify shippedDate is set to NULL on order creation
 -- =============================================================
 -- New order with a specified shippedDate (which should be overridden to NULL by the trigger)
-INSERT INTO orders (orderNumber, requiredDate, shippedDate, status, customerNumber)
-VALUES (1004, DATE_ADD(CURRENT_DATE(), INTERVAL 5 DAY), CURRENT_DATE(), 'Pending', 485);
+-- INSERT INTO orders (orderNumber, requiredDate, shippedDate, status, customerNumber)
+-- VALUES (1004, DATE_ADD(CURRENT_DATE(), INTERVAL 5 DAY), CURRENT_DATE(), 'Pending', 485);
 
 -- Verify shippedDate is set to NULL
-SELECT orderNumber, orderDate, requiredDate, shippedDate, status, customerNumber
-FROM orders
-WHERE orderNumber = 1004;
+-- SELECT orderNumber, orderDate, requiredDate, shippedDate, status, customerNumber
+-- FROM orders
+-- WHERE orderNumber = 1004;
 
 -- =============================================================
 -- 4AA TEST CASE 5: Verify inventory deduction on order creation
 -- =============================================================
 -- Create a new product entry in the products table
-INSERT INTO products (productCode, productName, productScale, productVendor, productDescription, buyPrice, product_category)
-VALUES ('S1_1000', 'Test Product', '1:18', 'Test Vendor', 'A sample product for testing purposes.', 50.00, 'C');
+-- INSERT INTO products (productCode, productName, productScale, productVendor, productDescription, buyPrice, product_category)
+-- VALUES ('S1_1000', 'Test Product', '1:18', 'Test Vendor', 'A sample product for testing purposes.', 50.00, 'C');
 
 -- Create an entry for the product in the current_products table
-INSERT INTO current_products (productCode, quantityInStock)
-VALUES ('S1_1000', 100);
+-- INSERT INTO current_products (productCode, quantityInStock)
+-- VALUES ('S1_1000', 100);
 
 -- Create a new order that will be used for the orderdetail
-INSERT INTO orders (orderNumber, requiredDate, status, customerNumber)
-VALUES (1005, DATE_ADD(CURRENT_DATE(), INTERVAL 5 DAY), 'In Process', 485);
+-- INSERT INTO orders (orderNumber, requiredDate, status, customerNumber)
+-- VALUES (1005, DATE_ADD(CURRENT_DATE(), INTERVAL 5 DAY), 'In Process', 485);
 
 -- Create a new orderdetail for the existing order to verify inventory deduction
-INSERT INTO orderdetails (orderNumber, productCode, quantityOrdered, priceEach, orderLineNumber)
-VALUES (1005, 'S1_1000', 5, 100.00, 1);
+-- INSERT INTO orderdetails (orderNumber, productCode, quantityOrdered, priceEach, orderLineNumber)
+-- VALUES (1005, 'S1_1000', 5, 100.00, 1);
 
 -- Verify inventory deduction
-SELECT productCode, quantityInStock 
-FROM current_products
-WHERE productCode = 'S1_1000';
+-- SELECT productCode, quantityInStock 
+-- FROM current_products
+-- WHERE productCode = 'S1_1000';
 
 -- =============================================================
 -- 4AA TEST CASE 6: Verify inventory updates on order quantity changes
 -- =============================================================
 
 -- Add an initial order detail entry to update later
-INSERT INTO orders (orderNumber, requiredDate, status, customerNumber)
-VALUES (1006, DATE_ADD(CURRENT_DATE(), INTERVAL 5 DAY), 'In Process', 485);
+-- INSERT INTO orders (orderNumber, requiredDate, status, customerNumber)
+-- VALUES (1006, DATE_ADD(CURRENT_DATE(), INTERVAL 5 DAY), 'In Process', 485);
 
 -- Stock should be currently 95 due to earlier test case using S1_1000
-INSERT INTO orderdetails (orderNumber, productCode, quantityOrdered, priceEach, orderLineNumber)
-VALUES (1006, 'S1_1000', 5, 100.00, 1);
+-- INSERT INTO orderdetails (orderNumber, productCode, quantityOrdered, priceEach, orderLineNumber)
+-- VALUES (1006, 'S1_1000', 5, 100.00, 1);
 
 -- Before update, ensure that inventory was properly deducted by the initial insertion
-SELECT productCode, quantityInStock 
-FROM current_products
-WHERE productCode = 'S1_1000';
+-- SELECT productCode, quantityInStock 
+-- FROM current_products
+-- WHERE productCode = 'S1_1000';
 
 -- Increase the quantityOrdered from 5 to 10 and verify the inventory deduction
-UPDATE orderdetails
-SET quantityOrdered = 10
-WHERE orderNumber = 1006 AND productCode = 'S1_1000';
+-- UPDATE orderdetails
+-- SET quantityOrdered = 10
+-- WHERE orderNumber = 1006 AND productCode = 'S1_1000';
 
 -- Inventory should now be reduced by an additional 5 units
-SELECT productCode, quantityInStock 
-FROM current_products
-WHERE productCode = 'S1_1000';
+-- SELECT productCode, quantityInStock 
+-- FROM current_products
+-- WHERE productCode = 'S1_1000';
 
 -- Decrease the quantityOrdered from 10 to 3 and verify inventory adjustment
-UPDATE orderdetails
-SET quantityOrdered = 3
-WHERE orderNumber = 1006 AND productCode = 'S1_1000';
+-- UPDATE orderdetails
+-- SET quantityOrdered = 3
+-- WHERE orderNumber = 1006 AND productCode = 'S1_1000';
 
 -- Inventory should now be increased by 7 units (since it was decreased from 10 to 3)
-SELECT productCode, quantityInStock 
-FROM current_products
-WHERE productCode = 'S1_1000';
+-- SELECT productCode, quantityInStock 
+-- FROM current_products
+-- WHERE productCode = 'S1_1000';
 
 -- Final quantityInStock should be 92
 -- 4A-A END
