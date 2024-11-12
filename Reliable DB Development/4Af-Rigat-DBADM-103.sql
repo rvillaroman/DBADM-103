@@ -13,7 +13,7 @@ BEGIN
         status = 'Cancelled',
         comments = 'Automatically cancelled by system due to non-shipping within one week.'
     WHERE 
-        status != 'Shipped' 
+        status != 'Shipped' AND status != 'Cancelled'
         AND shippedDate IS NULL 
         AND orderDate <= DATE_SUB(CURDATE(), INTERVAL 7 DAY);
 END $$
