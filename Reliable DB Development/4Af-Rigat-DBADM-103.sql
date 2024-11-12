@@ -27,8 +27,8 @@ SET GLOBAL EVENT_SCHEDULER = OFF;
 
 SHOW VARIABLES LIKE 'event_scheduler';
 																
-ALTER EVENT cancel_unshipped_orders_event DISABLE;
-ALTER EVENT cancel_unshipped_orders_event ENABLE;
+ALTER EVENT 4AF_cancel_unshipped_orders_event DISABLE;
+ALTER EVENT 4AF_cancel_unshipped_orders_event ENABLE;
 
 -- FOR CHECKING OF THE ORDERS THAT ARE NOT SHIPPED
 SELECT * FROM orders
