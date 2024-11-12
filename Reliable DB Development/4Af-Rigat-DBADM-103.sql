@@ -40,7 +40,8 @@ WHERE
 
 -- test1
 -- working since requiredDate data is more than 3 days of the order date and the orderdate is automaticall set to  CURDATE due to 4AA
--- status will be set to 'Cancelled' and comments will be set to 'Automatically cancelled by system due to non-shipping within one week.'
+-- need to adjust the device time to more than 7 days for the
+-- status to be set to 'Cancelled' and comments to be set to 'Automatically cancelled by system due to non-shipping within one week.'
 -- INSERT INTO orders (orderNumber, orderDate, requiredDate, shippedDate, status, comments, customerNumber)
 -- VALUES (1001, '2024-10-11', CURDATE() + INTERVAL 4 DAY, NULL, 'Processing', NULL, 119);
 
