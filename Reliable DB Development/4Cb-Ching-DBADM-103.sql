@@ -4,13 +4,18 @@
 -- 4C.b
 -- Logically, not all the details about the employee can be modified. Only the extension and email, Job Title and Employee Type can be changed.
 
--- Test Case 1
--- Check if Extensio and email, job title and employee type can be changed
+
+-- =============================================================
+-- 4CB TEST CASE 1: Verify if extension and email, job title and employee type can be changed
+-- =============================================================
+
 -- UPDATE employees
--- SET employeeNumber = 1103, extension = "x9273", email = "newmail@gmail.com",  jobtitle = "Sales REps", employee_type = "IM", isActive = 1
+-- SET extension = "x9273", email = "newmail@gmail.com",  jobtitle = "Sales REps", employee_type = "IM", isActive = 1
 -- WHERE employeeNumber = 1076;
--- Test Case 2
--- Check if Lastname and Firstname cannot be changed
+
+-- =============================================================
+-- 4CB TEST CASE 2: Verify if Lastname and Firstname cannot be changed
+-- =============================================================
 -- UPDATE employees
 -- SET lastName = "Pattersons", firstName = "Kayn"
 -- WHERE employeeNumber = 1056;
