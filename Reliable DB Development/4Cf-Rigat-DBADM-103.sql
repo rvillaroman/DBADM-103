@@ -1,9 +1,9 @@
 -- Part 4C-F
 -- Ridz Rigat
 
-DROP TRIGGER IF EXISTS update_sales_rep_assignment_end_date;
+DROP TRIGGER IF EXISTS 4CF_update_sales_rep_assignment_end_date;
 DELIMITER $$
-CREATE TRIGGER update_sales_rep_assignment_end_date
+CREATE TRIGGER 4CF_update_sales_rep_assignment_end_date
 BEFORE UPDATE ON employees
 FOR EACH ROW
 BEGIN
