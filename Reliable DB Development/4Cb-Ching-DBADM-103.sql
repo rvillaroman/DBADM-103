@@ -3,8 +3,6 @@
 
 -- 4C.b
 -- Logically, not all the details about the employee can be modified. Only the extension and email, Job Title and Employee Type can be changed.
-
-
 -- =============================================================
 -- 4CB TEST CASE 1: Verify if extension and email, job title and employee type can be changed
 -- =============================================================
@@ -22,8 +20,8 @@
 
 
 DELIMITER $$
-DROP TRIGGER IF EXISTS restrict_employee_update;
-CREATE TRIGGER restrict_employee_update
+DROP TRIGGER IF EXISTS 4CB_restrict_employee_update;
+CREATE TRIGGER 4CB_restrict_employee_update
 BEFORE UPDATE ON employees
 FOR EACH ROW
 BEGIN
