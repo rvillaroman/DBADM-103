@@ -47,10 +47,42 @@ CREATE TRIGGER `orderdetails_AFTER_INSERT` AFTER INSERT ON `orderdetails` FOR EA
 END $$
 DELIMITER ;
 
-DROP TRIGGER IF EXISTS orderdetails_BEFORE_UPDATE;
+DROP TRIGGER IF EXISTS `dbsalesv2.0`.`orderdetails_BEFORE_UPDATE`;
+
 DELIMITER $$
-CREATE TRIGGER `orderdetails_BEFORE_UPDATE` BEFORE UPDATE ON `orderdetails` FOR EACH ROW BEGIN
+USE `dbsalesv2.0`$$
+CREATE DEFINER=`root`@`localhost` TRIGGER `orderdetails_BEFORE_UPDATE` BEFORE UPDATE ON `orderdetails` FOR EACH ROW BEGIN
 	DECLARE errormessage	VARCHAR(200);
+    DECLARE var_orderstatus VARCHAR(15);
+    
+	-- Get the order status
+    SELECT orderstatus
+    INTO   var_orderstatus
+    FROM   orders
+    WHERE  ordernumber = OLD.ordernumber;
+    
+    IF (var_orderstatus IN ("Resolved","Disputed","Completed","Cancelled")) THEN
+   		SET errormessage = CONCAT("The order this belongs to has reached beyond Shipped status, therefore updates cannot be made anymore");
+		SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = errormessage;    
+    END IF;
+    
+	IF (NEW.ordernumber != OLD.ordernumber) OR (NEW.productcode != OLD.productCode) OR
+		(NEW.orderlinenumber != OLD.orderlinenumber) THEN
+			SET errormessage = CONCAT("Ordernumber, product code and line number cannot be updated");
+			SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = errormessage;   
+	END IF;
+
+	IF (var_orderstatus = "Shipped") THEN
+		IF (NEW.referenceNo IS NULL) THEN
+			SET errormessage = CONCAT("Order was shipped, a reference No is needed");
+			SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = errormessage;   
+		END IF;
+	ELSE
+		IF (NEW.referenceNo != OLD.referenceNo) THEN
+			SET errormessage = CONCAT("Shipping Reference No can only be updated is the order status is shipped");
+			SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = errormessage;  		
+		END IF;
+	END IF;
     
     -- Check if the new quantity will cause the inventory to go below 0
     IF ((SELECT quantityInStock+old.quantityOrdered-new.quantityOrdered FROM current_products WHERE productCode = new.productCode) < 0) THEN
@@ -63,9 +95,10 @@ CREATE TRIGGER `orderdetails_BEFORE_UPDATE` BEFORE UPDATE ON `orderdetails` FOR 
 		SET errormessage = "The line number cannot be updated";
 		SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = errormessage;
     END IF;
-
+    
 END $$
 DELIMITER ;
+
 
 DROP TRIGGER IF EXISTS orderdetails_AFTER_UPDATE;
 DELIMITER $$
