@@ -2,9 +2,9 @@
 -- Product categories cannot be modified. 
 -- Ridz Rigat
 
-DROP TRIGGER IF EXISTS current_products_BEFORE_UPDATE;
+DROP TRIGGER IF EXISTS 4BD_current_products_BEFORE_UPDATE;
 DELIMITER $$
-CREATE TRIGGER `current_products_BEFORE_UPDATE` BEFORE UPDATE ON `current_products` FOR EACH ROW BEGIN
+CREATE TRIGGER `4BD_current_products_BEFORE_UPDATE` BEFORE UPDATE ON `current_products` FOR EACH ROW BEGIN
 	DECLARE errormessage	VARCHAR(200);
     
     IF (OLD.product_type != NEW.product_type) THEN
