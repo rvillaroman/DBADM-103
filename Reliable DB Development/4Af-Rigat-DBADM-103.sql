@@ -1,9 +1,9 @@
 -- Part 4A-F
 -- Ridz Rigat
 
-DROP EVENT IF EXISTS cancel_unshipped_orders_event;
+DROP EVENT IF EXISTS 4AF_cancel_unshipped_orders_event;
 DELIMITER $$
-CREATE EVENT cancel_unshipped_orders_event
+CREATE EVENT 4AF_cancel_unshipped_orders_event
 ON SCHEDULE 
 EVERY 5 SECOND 
 DO
