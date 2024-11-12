@@ -5,8 +5,8 @@
 -- ITDBADM_S16
 
 
-DROP TABLE IF EXISTS pricing_variation_report;
-CREATE TABLE pricing_variation_report (
+DROP TABLE IF EXISTS 5D_pricing_variation_report;
+CREATE TABLE 5D_pricing_variation_report (
     report_id INT,                  
     productCode VARCHAR(15),       
     productLine VARCHAR(255),       
@@ -18,9 +18,9 @@ CREATE TABLE pricing_variation_report (
     PRIMARY KEY(report_id, productCode)
 );
 
-DROP PROCEDURE IF EXISTS generate_priceVariationReport;
+DROP PROCEDURE IF EXISTS 5D_generate_priceVariationReport;
 DELIMITER $$
-CREATE PROCEDURE generate_priceVariationReport (param_productCode VARCHAR(15), param_report_year INT, param_report_month INT)
+CREATE PROCEDURE 5D_generate_priceVariationReport (param_productCode VARCHAR(15), param_report_year INT, param_report_month INT)
 BEGIN
     DECLARE report_id INT;
 
@@ -59,21 +59,21 @@ END $$
 DELIMITER ;
 
 -- Test the procedure
-CALL generate_priceVariationReport('S10_2016', 2024, 10);  
+CALL 5D_generate_priceVariationReport('S10_2016', 2024, 10);  
 
 
-DROP EVENT IF EXISTS generate_priceVariationReport;
+DROP EVENT IF EXISTS 5D_generate_priceVariationReport;
 DELIMITER $$
-CREATE EVENT generate_priceVariationReport
+CREATE EVENT 5D_generate_priceVariationReport
 ON SCHEDULE EVERY 10 SECOND
 DO
 BEGIN
-	CALL generate_priceVariationReport('S10_1678', 2024, 9); 
+	CALL 5D_generate_priceVariationReport('S10_1678', 2024, 9); 
 END $$
 DELIMITER ;
 
-ALTER EVENT generate_priceVariationReport 				DISABLE;
-ALTER EVENT generate_priceVariationReport 				ENABLE;
+ALTER EVENT 5D_generate_priceVariationReport 				DISABLE;
+ALTER EVENT 5D_generate_priceVariationReport 				ENABLE;
 
 
 
