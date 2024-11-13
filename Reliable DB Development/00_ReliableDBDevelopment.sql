@@ -2289,96 +2289,96 @@ DELIMITER ;
 
 
 
--- =============================================================
--- 4BA TEST CASE 1: Inserting a Retail Product
--- =============================================================
+-- -- =============================================================
+-- -- 4BA TEST CASE 1: Inserting a Retail Product
+-- -- =============================================================
 
--- Insert a new retail product into the `products` table
--- Expected outcome: The product is added to `current_products`, `product_retail`, and `product_pricing`
-INSERT INTO products (productCode, productName, productScale, productVendor, productDescription, buyPrice, product_category, product_type)
-VALUES ('S1_2000', 'Retail Product Test', '1:12', 'Retail Vendor', 'Retail product for testing', 75.00, 'C', 'R');
+-- -- Insert a new retail product into the `products` table
+-- -- Expected outcome: The product is added to `current_products`, `product_retail`, and `product_pricing`
+-- INSERT INTO products (productCode, productName, productScale, productVendor, productDescription, buyPrice, product_category, product_type)
+-- VALUES ('S1_2000', 'Retail Product Test', '1:12', 'Retail Vendor', 'Retail product for testing', 75.00, 'C', 'R');
 
--- Verify the product is added to `current_products`
-SELECT productCode, product_type, quantityInStock
-FROM current_products
-WHERE productCode = 'S1_2000';
+-- -- Verify the product is added to `current_products`
+-- SELECT productCode, product_type, quantityInStock
+-- FROM current_products
+-- WHERE productCode = 'S1_2000';
 
--- Verify the product is added to `product_retail`
-SELECT productCode
-FROM product_retail
-WHERE productCode = 'S1_2000';
+-- -- Verify the product is added to `product_retail`
+-- SELECT productCode
+-- FROM product_retail
+-- WHERE productCode = 'S1_2000';
 
--- Verify the product pricing details in `product_pricing`
-SELECT productCode, startdate, enddate, MSRP
-FROM product_pricing
-WHERE productCode = 'S1_2000';
+-- -- Verify the product pricing details in `product_pricing`
+-- SELECT productCode, startdate, enddate, MSRP
+-- FROM product_pricing
+-- WHERE productCode = 'S1_2000';
 
--- =============================================================
--- 4BA TEST CASE 2: Inserting a Wholesale Product
--- =============================================================
+-- -- =============================================================
+-- -- 4BA TEST CASE 2: Inserting a Wholesale Product
+-- -- =============================================================
 
--- Insert a new wholesale product into the `products` table
--- Expected outcome: The product is added to `current_products` and `product_wholesale`
-INSERT INTO products (productCode, productName, productScale, productVendor, productDescription, buyPrice, product_category, product_type)
-VALUES ('S1_2001', 'Wholesale Product Test', '1:12', 'Wholesale Vendor', 'Wholesale product for testing', 85.00, 'C', 'W');
+-- -- Insert a new wholesale product into the `products` table
+-- -- Expected outcome: The product is added to `current_products` and `product_wholesale`
+-- INSERT INTO products (productCode, productName, productScale, productVendor, productDescription, buyPrice, product_category, product_type)
+-- VALUES ('S1_2001', 'Wholesale Product Test', '1:12', 'Wholesale Vendor', 'Wholesale product for testing', 85.00, 'C', 'W');
 
--- Verify the product is added to `current_products`
-SELECT productCode, product_type, quantityInStock
-FROM current_products
-WHERE productCode = 'S1_2001';
+-- -- Verify the product is added to `current_products`
+-- SELECT productCode, product_type, quantityInStock
+-- FROM current_products
+-- WHERE productCode = 'S1_2001';
 
--- Verify the product is added to `product_wholesale` with MSRP details
-SELECT productCode, MSRP
-FROM product_wholesale
-WHERE productCode = 'S1_2001';
+-- -- Verify the product is added to `product_wholesale` with MSRP details
+-- SELECT productCode, MSRP
+-- FROM product_wholesale
+-- WHERE productCode = 'S1_2001';
 
--- =============================================================
--- 4BA TEST CASE 3: Inserting a Product Without `product_type`
--- =============================================================
+-- -- =============================================================
+-- -- 4BA TEST CASE 3: Inserting a Product Without `product_type`
+-- -- =============================================================
 
--- Insert a new product without specifying `product_type`
--- Expected outcome: The system assumes `product_type` as 'R' (retail) and categorizes accordingly
-INSERT INTO products (productCode, productName, productScale, productVendor, productDescription, buyPrice, product_category)
-VALUES ('S1_2002', 'No Type Product Test', '1:12', 'No Type Vendor', 'Product without type for testing', 65.00, 'C');
+-- -- Insert a new product without specifying `product_type`
+-- -- Expected outcome: The system assumes `product_type` as 'R' (retail) and categorizes accordingly
+-- INSERT INTO products (productCode, productName, productScale, productVendor, productDescription, buyPrice, product_category)
+-- VALUES ('S1_2002', 'No Type Product Test', '1:12', 'No Type Vendor', 'Product without type for testing', 65.00, 'C');
 
--- Verify the product is added to `current_products` as retail
-SELECT productCode, product_type, quantityInStock
-FROM current_products
-WHERE productCode = 'S1_2002';
+-- -- Verify the product is added to `current_products` as retail
+-- SELECT productCode, product_type, quantityInStock
+-- FROM current_products
+-- WHERE productCode = 'S1_2002';
 
--- Verify the product is added to `product_retail`
-SELECT productCode
-FROM product_retail
-WHERE productCode = 'S1_2002';
+-- -- Verify the product is added to `product_retail`
+-- SELECT productCode
+-- FROM product_retail
+-- WHERE productCode = 'S1_2002';
 
--- Verify the product pricing details in `product_pricing`
-SELECT productCode, startdate, enddate, MSRP
-FROM product_pricing
-WHERE productCode = 'S1_2002';
+-- -- Verify the product pricing details in `product_pricing`
+-- SELECT productCode, startdate, enddate, MSRP
+-- FROM product_pricing
+-- WHERE productCode = 'S1_2002';
 
--- =============================================================
--- 4BA TEST CASE 4: Inserting a Product with `product_category` Not Equal to 'C'
--- =============================================================
+-- -- =============================================================
+-- -- 4BA TEST CASE 4: Inserting a Product with `product_category` Not Equal to 'C'
+-- -- =============================================================
 
--- Insert a new product with `product_category` set to 'D' (Discontinued)
--- Expected outcome: The product should be inserted into the `products` table but should not appear in `current_products`, `product_retail`, or `product_wholesale`
-INSERT INTO products (productCode, productName, productScale, productVendor, productDescription, buyPrice, product_category, product_type)
-VALUES ('S1_2003', 'Discontinued Product Test', '1:12', 'Test Vendor', 'Discontinued product', 55.00, 'D', 'R');
+-- -- Insert a new product with `product_category` set to 'D' (Discontinued)
+-- -- Expected outcome: The product should be inserted into the `products` table but should not appear in `current_products`, `product_retail`, or `product_wholesale`
+-- INSERT INTO products (productCode, productName, productScale, productVendor, productDescription, buyPrice, product_category, product_type)
+-- VALUES ('S1_2003', 'Discontinued Product Test', '1:12', 'Test Vendor', 'Discontinued product', 55.00, 'D', 'R');
 
--- Verify no entry is made in `current_products`
-SELECT productCode
-FROM current_products
-WHERE productCode = 'S1_2003';
+-- -- Verify no entry is made in `current_products`
+-- SELECT productCode
+-- FROM current_products
+-- WHERE productCode = 'S1_2003';
 
--- Verify no entry is made in `product_retail`
-SELECT productCode
-FROM product_retail
-WHERE productCode = 'S1_2003';
+-- -- Verify no entry is made in `product_retail`
+-- SELECT productCode
+-- FROM product_retail
+-- WHERE productCode = 'S1_2003';
 
--- Verify no entry is made in `product_wholesale`
-SELECT productCode
-FROM product_wholesale
-WHERE productCode = 'S1_2003';
+-- -- Verify no entry is made in `product_wholesale`
+-- SELECT productCode
+-- FROM product_wholesale
+-- WHERE productCode = 'S1_2003';
 
 
 -- ========================================================================================================================================================================================================================================================================
@@ -2389,8 +2389,9 @@ WHERE productCode = 'S1_2003';
 -- ========================================================================================================================================================================================================================================================================
 -- ========================================================================================================================================================================================================================================================================
 -- ========================================================================================================================================================================================================================================================================
+-- ITDBADM-103
+-- Ching, Bryan Nicholas 
 
--- Drop Existing Triggers
 DROP TRIGGER IF EXISTS 4BB_product_creation_classification;
 DROP TRIGGER IF EXISTS 4BB_add_productline_classification;
 DROP TRIGGER IF EXISTS 4BB_delete_productline_classification;
@@ -2448,83 +2449,69 @@ END$$
 DELIMITER ;
 
 
--- Alter `product_productlines` Table to Add Foreign Key Constraint for Automatic Cleanup
-ALTER TABLE product_productlines
-DROP FOREIGN KEY fk_product_productlines;
-
-ALTER TABLE product_productlines
-ADD CONSTRAINT fk_product_productlines
-FOREIGN KEY (productCode)
-REFERENCES products (productCode)
-ON DELETE CASCADE;
-
--- Add Unique Constraint to `product_productlines` Table to Prevent Duplicate Classifications
-ALTER TABLE product_productlines
-ADD CONSTRAINT uq_product_productline UNIQUE (productCode, productLine);
 
 
 
+-- -- =============================================================
+-- -- 4BB TEST CASE 1: Product Creation Classification to Default Product Line
+-- -- =============================================================
 
--- =============================================================
--- 4BB TEST CASE 1: Product Creation Classification to Default Product Line
--- =============================================================
+-- -- Insert a new product into the `products` table
+-- -- Expected outcome: The product is automatically classified under the "Classic Cars" product line
+-- INSERT INTO products (productCode, productName, productScale, productVendor, productDescription, buyPrice, product_category, product_type)
+-- VALUES ('S1_3000', 'Classic Car Product Test', '1:12', 'Classic Vendor', 'Classic car for testing', 95.00, 'C', 'R');
 
--- Insert a new product into the `products` table
--- Expected outcome: The product is automatically classified under the "Classic Cars" product line
-INSERT INTO products (productCode, productName, productScale, productVendor, productDescription, buyPrice, product_category, product_type)
-VALUES ('S1_3000', 'Classic Car Product Test', '1:12', 'Classic Vendor', 'Classic car for testing', 95.00, 'C', 'R');
+-- -- Verify the product is added to `product_productlines` under "Classic Cars"
+-- SELECT productCode, productLine
+-- FROM product_productlines
+-- WHERE productCode = 'S1_3000';
 
--- Verify the product is added to `product_productlines` under "Classic Cars"
-SELECT productCode, productLine
-FROM product_productlines
-WHERE productCode = 'S1_3000';
+-- -- =============================================================
+-- -- 4BB TEST CASE 2: Adding a New Product Line Classification
+-- -- =============================================================
 
--- =============================================================
--- 4BB TEST CASE 2: Adding a New Product Line Classification
--- =============================================================
+-- -- Insert a new product line "Sports Cars" into the `productlines` table
+-- -- Expected outcome: The new product line is successfully added
+-- INSERT INTO productlines (productLine, textDescription)
+-- VALUES ('Sports Cars', 'A product line for sports cars, focusing on high-performance vehicles.');
 
--- Insert a new product line "Sports Cars" into the `productlines` table
--- Expected outcome: The new product line is successfully added
-INSERT INTO productlines (productLine, textDescription)
-VALUES ('Sports Cars', 'A product line for sports cars, focusing on high-performance vehicles.');
+-- -- Insert a new classification for an existing product
+-- -- Expected outcome: Product classification is added successfully under a new product line
+-- INSERT INTO product_productlines (productCode, productLine)
+-- VALUES ('S1_3000', 'Sports Cars');
 
--- Insert a new classification for an existing product
--- Expected outcome: Product classification is added successfully under a new product line
-INSERT INTO product_productlines (productCode, productLine)
-VALUES ('S1_3000', 'Sports Cars');
+-- -- Verify that the product is now classified under both "Classic Cars" and "Sports Cars"
+-- SELECT productCode, productLine
+-- FROM product_productlines
+-- WHERE productCode = 'S1_3000';
 
--- Verify that the product is now classified under both "Classic Cars" and "Sports Cars"
-SELECT productCode, productLine
-FROM product_productlines
-WHERE productCode = 'S1_3000';
+-- -- Attempt to insert a duplicate classification
+-- -- Expected outcome: Insertion fails due to unique constraint on `(productCode, productLine)`
+-- INSERT INTO product_productlines (productCode, productLine)
+-- VALUES ('S1_3000', 'Classic Cars');
 
--- Attempt to insert a duplicate classification
--- Expected outcome: Insertion fails due to unique constraint on `(productCode, productLine)`
-INSERT INTO product_productlines (productCode, productLine)
-VALUES ('S1_3000', 'Classic Cars');
+-- -- =============================================================
+-- -- 4BB TEST CASE 3: Handling Product Classification When Product Does Not Exist
+-- -- =============================================================
 
--- =============================================================
--- 4BB TEST CASE 3: Handling Product Classification When Product Does Not Exist
--- =============================================================
+-- -- Attempt to classify a non-existent product
+-- -- Expected outcome: Insertion fails with an error message
+-- INSERT INTO product_productlines (productCode, productLine)
+-- VALUES ('S1_9999', 'Luxury Cars');
 
--- Attempt to classify a non-existent product
--- Expected outcome: Insertion fails with an error message
-INSERT INTO product_productlines (productCode, productLine)
-VALUES ('S1_9999', 'Luxury Cars');
+-- -- =============================================================
+-- -- 4BB TEST CASE 4: Preventing Deletion of Product Line with Existing Product Classifications
+-- -- =============================================================
 
--- =============================================================
--- 4BB TEST CASE 4: Preventing Deletion of Product Line with Existing Product Classifications
--- =============================================================
+-- -- Attempt to delete the "Classic Cars" product line
+-- -- Expected outcome: Deletion fails with an error message indicating that there are existing products classified under this line
+-- DELETE FROM productlines
+-- WHERE productLine = 'Classic Cars';
 
--- Attempt to delete the "Classic Cars" product line
--- Expected outcome: Deletion fails with an error message indicating that there are existing products classified under this line
-DELETE FROM productlines
-WHERE productLine = 'Classic Cars';
-
--- Verify the product line still exists
-SELECT productLine
-FROM productlines
-WHERE productLine = 'Classic Cars';
+-- -- Verify the product line still exists
+-- SELECT productLine
+-- FROM productlines
+-- WHERE productLine = 'Classic Cars';
 
 
 -- ========================================================================================================================================================================================================================================================================
@@ -2594,33 +2581,33 @@ DELIMITER ;
 
 
 
--- =============================================================
--- 4BC TEST CASE 1: Retrieve MSRP for Retail Product
--- =============================================================
+-- -- =============================================================
+-- -- 4BC TEST CASE 1: Retrieve MSRP for Retail Product
+-- -- =============================================================
 
--- Insert test product classified as retail
-INSERT INTO products (productCode, productName, productScale, productVendor, productDescription, buyPrice, product_category, product_type)
-VALUES ('S1_4000', 'Retail Test Product', '1:18', 'Test Vendor', 'Retail product for MSRP test', 80.00, 'C', 'R');
-
-
--- Add MSRP for retail product in the product_pricing table
-INSERT INTO product_pricing (productCode, startdate, enddate, MSRP)
-VALUES ('S1_4000', CURDATE() - INTERVAL 1 MONTH, CURDATE() + INTERVAL 1 MONTH, 120.00);
-
--- Call function to retrieve MSRP for the retail product
-SELECT 4BC_getProductMSRP('S1_4000') AS MSRP;
-
--- =============================================================
--- 4BC TEST CASE 2: Retrieve MSRP for Wholesale Product
--- =============================================================
-
--- Insert test product classified as wholesale
-INSERT INTO products (productCode, productName, productScale, productVendor, productDescription, buyPrice, product_category, product_type)
-VALUES ('S1_4001', 'Wholesale Test Product', '1:18', 'Test Vendor', 'Wholesale product for MSRP test', 100.00, 'C', 'W');
+-- -- Insert test product classified as retail
+-- INSERT INTO products (productCode, productName, productScale, productVendor, productDescription, buyPrice, product_category, product_type)
+-- VALUES ('S1_4000', 'Retail Test Product', '1:18', 'Test Vendor', 'Retail product for MSRP test', 80.00, 'C', 'R');
 
 
--- Call function to retrieve MSRP for the wholesale product
-SELECT 4BC_getProductMSRP('S1_4001') AS MSRP;
+-- -- Add MSRP for retail product in the product_pricing table
+-- INSERT INTO product_pricing (productCode, startdate, enddate, MSRP)
+-- VALUES ('S1_4000', CURDATE() - INTERVAL 1 MONTH, CURDATE() + INTERVAL 1 MONTH, 120.00);
+
+-- -- Call function to retrieve MSRP for the retail product
+-- SELECT 4BC_getProductMSRP('S1_4000') AS MSRP;
+
+-- -- =============================================================
+-- -- 4BC TEST CASE 2: Retrieve MSRP for Wholesale Product
+-- -- =============================================================
+
+-- -- Insert test product classified as wholesale
+-- INSERT INTO products (productCode, productName, productScale, productVendor, productDescription, buyPrice, product_category, product_type)
+-- VALUES ('S1_4001', 'Wholesale Test Product', '1:18', 'Test Vendor', 'Wholesale product for MSRP test', 100.00, 'C', 'W');
+
+
+-- -- Call function to retrieve MSRP for the wholesale product
+-- SELECT 4BC_getProductMSRP('S1_4001') AS MSRP;
 
 -- ========================================================================================================================================================================================================================================================================
 -- ========================================================================================================================================================================================================================================================================
@@ -2661,3 +2648,742 @@ DELIMITER ;
 -- UPDATE current_products
 -- SET product_type = 'R'
 -- WHERE productCode = 'S10_1949'; 
+
+-- ========================================================================================================================================================================================================================================================================
+-- ========================================================================================================================================================================================================================================================================
+-- ========================================================================================================================================================================================================================================================================
+-- 4B-E: Products though can be discontinued at some time and later be brought back to current products. There are records processing that happens when moving
+-- products from current to discontinued and vice-versa which should automatically be performed by the System.Take Note that only inventory managers can
+-- discontinue a product.
+-- ========================================================================================================================================================================================================================================================================
+-- ========================================================================================================================================================================================================================================================================
+-- ========================================================================================================================================================================================================================================================================
+-- Jericko Razal
+
+ALTER TABLE Products ADD COLUMN isAvailable TINYINT(1) DEFAULT 1;
+
+DROP TRIGGER IF EXISTS 4BE_products_BEFORE_UPDATE;
+
+DELIMITER $$
+CREATE TRIGGER 4BE_products_BEFORE_UPDATE 
+BEFORE UPDATE ON products 
+FOR EACH ROW 
+BEGIN
+    DECLARE errormessage VARCHAR(200);
+
+    -- Check if the product category is being updated
+    IF NEW.product_category != OLD.product_category THEN
+
+        -- Ensure only the 'inventorymodule' user can change product category
+        IF CURRENT_USER() NOT LIKE 'inventorymodule@%' THEN
+            SET errormessage = 'Only Inventory Managers can discontinue or reactivate products.';
+            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = errormessage;
+        END IF;
+
+        -- Discontinuation process (Product Category 'D')
+        IF NEW.product_category = 'D' THEN
+            -- Log the discontinuation
+            SET NEW.latest_activityreason = 'Product Discontinued by Inventory Manager';
+            SET NEW.latest_activitymethod = 'System';
+
+            -- Mark product as unavailable for ordering
+            SET NEW.isAvailable = 0;
+
+        -- Reactivation process (Product Category 'C')
+        ELSEIF NEW.product_category = 'C' THEN
+            -- Log the reactivation
+            SET NEW.latest_activityreason = 'Product Reactivated by Inventory Manager';
+            SET NEW.latest_activitymethod = 'System';
+
+            -- Mark product as available for ordering
+            SET NEW.isAvailable = 1;
+        END IF;
+
+    END IF;
+
+END $$
+DELIMITER ;
+
+
+-- =============================================================
+-- 4BE TEST CASE 1: Attempted Product Category Change by Non-Inventory Manager
+-- =============================================================
+
+-- Log in as a non-inventory manager
+-- Attempt to change the product_category from 'C' to 'D' for a test product
+-- This update should fail because only the 'inventorymodule' user has permission
+
+-- UPDATE products
+-- SET product_category = 'D'
+-- WHERE productCode = 'S1_4001';  -- Assume this product already exists
+
+-- =============================================================
+-- 4BE TEST CASE 2: Product Category Change by Inventory Manager
+-- =============================================================
+-- switch to inventorymodule
+
+
+-- ========================================================================================================================================================================================================================================================================
+-- ========================================================================================================================================================================================================================================================================
+-- ========================================================================================================================================================================================================================================================================
+-- 4C-A: When employee records are created, their job title and employee type is required to be identified. Job Titles are controlled values from a set of job titles
+-- available in the organization. Employee types are restricted to Sales Representatives, Sales Manager or Inventory Manager. At any time and because of
+-- employee movements, promotions and re-assignments, employees’ employee types can change. For example, an employee can be a Sales Representative
+-- at a certain time, then promoted to be the Sales Manager, then after some time gets to be demoted back to a Sales Representative, or in the future may be
+-- assigned to an employee type Inventory Manager and may be further re-typed back to a Sales Representative. This is a normal situation that happens in an
+-- organization that regardless of your Job Title, your employee type can change.
+-- ========================================================================================================================================================================================================================================================================
+-- ========================================================================================================================================================================================================================================================================
+-- ========================================================================================================================================================================================================================================================================
+-- Villaroman, Raphael Luis G.
+-- DBADM-103
+
+-- Define controlled job titles directly in the `job_titles` table
+CREATE TABLE IF NOT EXISTS job_titles (
+    jobTitle VARCHAR(50) PRIMARY KEY
+);
+
+-- Insert allowed job titles
+INSERT INTO job_titles (jobTitle) VALUES 
+('Sales Rep'), 
+('Sales Manager'), 
+('Inventory Manager');
+
+DROP TRIGGER IF EXISTS 4CA_employees_BEFORE_INSERT;
+DROP TRIGGER IF EXISTS 4CA_employees_BEFORE_UPDATE;
+
+-- Create Trigger to validate job title and employee type on insert
+DELIMITER $$
+CREATE TRIGGER 4CA_employees_BEFORE_INSERT
+BEFORE INSERT ON employees
+FOR EACH ROW
+BEGIN
+    DECLARE errormessage VARCHAR(200);
+
+    -- Validate jobTitle against entries in job_titles table
+    IF (SELECT COUNT(*) FROM job_titles WHERE jobTitle = NEW.jobTitle) = 0 THEN
+        SET errormessage = CONCAT('Invalid job title: ', NEW.jobTitle, '. Allowed titles are Sales Rep, Sales Manager, Inventory Manager.');
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = errormessage;
+    END IF;
+
+    -- Ensure employee_type matches the jobTitle
+    IF NEW.employee_type = 'N' AND NEW.jobTitle != 'Inventory Manager' THEN
+        SET errormessage = 'Employee type "N" is only allowed for the "Inventory Manager" job title.';
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = errormessage;
+    ELSEIF NEW.employee_type = 'S' AND NEW.jobTitle NOT IN ('Sales Rep', 'Sales Manager') THEN
+        SET errormessage = 'Employee type "S" is only allowed for the "Sales Rep" or "Sales Manager" job titles.';
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = errormessage;
+    END IF;
+END$$
+DELIMITER ;
+
+-- Create Trigger to validate job title and employee type on update
+DELIMITER $$
+CREATE TRIGGER 4CA_employees_BEFORE_UPDATE
+BEFORE UPDATE ON employees
+FOR EACH ROW
+BEGIN
+    DECLARE errormessage VARCHAR(200);
+
+    -- Validate jobTitle against entries in job_titles table
+    IF (SELECT COUNT(*) FROM job_titles WHERE jobTitle = NEW.jobTitle) = 0 THEN
+        SET errormessage = CONCAT('Invalid job title: ', NEW.jobTitle, '. Allowed titles are Sales Rep, Sales Manager, Inventory Manager.');
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = errormessage;
+    END IF;
+
+    -- Ensure employee_type matches the jobTitle
+    IF NEW.employee_type = 'N' AND NEW.jobTitle != 'Inventory Manager' THEN
+        SET errormessage = 'Employee type "N" is only allowed for the "Inventory Manager" job title.';
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = errormessage;
+    ELSEIF NEW.employee_type = 'S' AND NEW.jobTitle NOT IN ('Sales Rep', 'Sales Manager') THEN
+        SET errormessage = 'Employee type "S" is only allowed for the "Sales Rep" or "Sales Manager" job titles.';
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = errormessage;
+    END IF;
+END$$
+DELIMITER ;
+
+
+
+
+-- -- =============================================================
+-- -- 4CA TEST CASE 1: Invalid Job Title on Employee Insert
+-- -- =============================================================
+
+-- -- Attempt to insert an employee with an invalid job title
+-- INSERT INTO employees (employeeNumber, lastName, firstName, extension, email, jobTitle, employee_type)
+-- VALUES (101, 'Doe', 'John', 'x1234', 'jdoe@classicmodelcars.com', 'Developer', 'S');
+
+-- -- Expected outcome: The operation fails with an error message stating 
+-- -- "Invalid job title: Developer. Allowed titles are Sales Rep, Sales Manager, Inventory Manager."
+
+-- -- =============================================================
+-- -- 4CA TEST CASE 2: Invalid Employee Type on Employee Insert
+-- -- =============================================================
+
+-- -- Attempt to insert an employee with an invalid employee_type
+-- INSERT INTO employees (employeeNumber, lastName, firstName, extension, email, jobTitle, employee_type)
+-- VALUES (102, 'Smith', 'Jane', 'x5678', 'jsmith@classicmodelcars.com', 'Sales Rep', 'A');
+
+-- -- Expected outcome: The operation fails due to the ENUM on employee_type
+
+-- -- =============================================================
+-- -- 4CA TEST CASE 3: Valid Employee Insert
+-- -- =============================================================
+
+-- -- Attempt to insert an employee with a valid job title and employee type
+-- INSERT INTO employees (employeeNumber, lastName, firstName, extension, email, jobTitle, employee_type)
+-- VALUES (103, 'Guo', 'Alice', 'x7890', 'aguo@classicmodelcars.com', 'Sales Rep', 'S');
+
+-- -- Expected outcome: The operation succeeds and the employee is added into the table
+
+-- -- =============================================================
+-- -- 4CA TEST CASE 4: Invalid Job Title on Employee Update
+-- -- =============================================================
+
+-- -- Attempt to update an existing employee to an invalid job title
+-- UPDATE employees
+-- SET jobTitle = 'Developer'
+-- WHERE employeeNumber = 103;
+
+-- -- Expected outcome: The operation fails with an error message stating
+-- -- "Invalid job title: Developer. Allowed titles are Sales Rep, Sales Manager, Inventory Manager."
+
+-- -- =============================================================
+-- -- 4CA TEST CASE 5: Valid Job Title on Employee Update
+-- -- =============================================================
+
+-- -- Attempt to update an existing employee to a valid job title
+-- UPDATE employees
+-- SET jobTitle = 'Sales Manager'
+-- WHERE employeeNumber = 103;
+
+-- -- Expected outcome: The operation succeeds, and the employee's job title is updated.
+
+-- -- =============================================================
+-- -- 4CA TEST CASE 6: Invalid Employee Type with Job Title Update
+-- -- =============================================================
+
+-- -- Attempt to update an employee's employee_type to 'N' with an incompatible job title (e.g., "Sales Manager")
+-- UPDATE employees
+-- SET employee_type = 'N'
+-- WHERE employeeNumber = 103;
+
+-- -- Expected outcome: The operation fails with an error message stating
+-- -- "Employee type 'N' is only allowed for the 'Inventory Manager' job title."
+
+-- -- =============================================================
+-- -- 4CA TEST CASE 7: Valid Update of Both `jobTitle` and `employee_type`
+-- -- =============================================================
+
+-- -- Attempt to update both the employee's jobTitle and employee_type to compatible values
+-- UPDATE employees
+-- SET jobTitle = 'Inventory Manager', employee_type = 'N'
+-- WHERE employeeNumber = 103;
+
+-- Expected outcome: The operation succeeds, updating both the job title to 'Inventory Manager' and employee type to 'N' without errors.
+
+-- ========================================================================================================================================================================================================================================================================
+-- ========================================================================================================================================================================================================================================================================
+-- ========================================================================================================================================================================================================================================================================
+-- 4C-B: Logically, not all the details about the employee can be modified. Only the extension and email, Job Title and Employee Type can be changed.
+-- ========================================================================================================================================================================================================================================================================
+-- ========================================================================================================================================================================================================================================================================
+-- ========================================================================================================================================================================================================================================================================
+-- ITDBADM-103
+-- Ching, Bryan Nicholas 
+
+
+-- Add `isActive` column to employees table if not present
+ALTER TABLE employees
+ADD COLUMN isActive BOOLEAN NOT NULL DEFAULT 1;
+
+DROP TRIGGER IF EXISTS 4CB_restrict_employee_update;
+
+-- Trigger to restrict updates to only the allowed fields, with `isActive` check
+DELIMITER $$
+CREATE TRIGGER 4CB_restrict_employee_update
+BEFORE UPDATE ON employees
+FOR EACH ROW
+BEGIN
+    DECLARE errormessage VARCHAR(200);
+
+    -- Prevent modifications if the employee is inactive
+    IF OLD.isActive = 0 THEN
+        SET errormessage = 'Modifications are not allowed on resigned employee records.';
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = errormessage;
+    END IF;
+
+    -- Restrict modifications to non-allowed fields
+    IF NEW.lastName != OLD.lastName THEN
+        SET errormessage = 'Modification of last name is not allowed.';
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = errormessage;
+    END IF;
+
+    IF NEW.firstName != OLD.firstName THEN
+        SET errormessage = 'Modification of first name is not allowed.';
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = errormessage;
+    END IF;
+
+    -- Add additional checks for any other non-modifiable fields if required
+END $$
+DELIMITER ;
+
+
+-- -- =============================================================
+-- -- 4CB TEST CASE 1: Verify if `extension`, `email`, `jobTitle`, and `employee_type` can be changed
+-- -- =============================================================
+-- UPDATE employees
+-- SET extension = "x9273", email = "newmail@gmail.com", jobTitle = "Sales Manager", employee_type = "S"
+-- WHERE employeeNumber = 1076;
+
+
+
+-- -- =============================================================
+-- -- 4CB TEST CASE 2: Verify that `lastName` and `firstName` cannot be changed
+-- -- =============================================================
+-- UPDATE employees
+-- SET lastName = "Firelli", firstName = "Jane"
+-- WHERE employeeNumber = 1076;
+
+
+-- ========================================================================================================================================================================================================================================================================
+-- ========================================================================================================================================================================================================================================================================
+-- ========================================================================================================================================================================================================================================================================
+-- 4C-C: Employee Records are not deleted. When employees resign that their records get deactivated, and no changes should be allowed on the record. If the
+-- resigned employee reapplied to the company, a new employee record is created for the individual.
+-- ========================================================================================================================================================================================================================================================================
+-- ========================================================================================================================================================================================================================================================================
+-- ========================================================================================================================================================================================================================================================================
+-- ITDBADM-103
+-- Ching, Bryan Nicholas 
+
+-- Instructions
+-- need to add an isActive field to set a employee as resigned or is working remove comment to add it
+-- cannot delete the data. Make the isActive status 0
+
+DROP TRIGGER IF EXISTS 4CC_prevent_employee_deletion;
+DROP PROCEDURE IF EXISTS 4CC_rehire_employee;
+
+-- Trigger to prevent deletion of employee records
+DELIMITER $$
+CREATE TRIGGER 4CC_prevent_employee_deletion
+BEFORE DELETE ON employees
+FOR EACH ROW
+BEGIN
+    SIGNAL SQLSTATE '45000'
+    SET MESSAGE_TEXT = 'Employee records cannot be deleted. Deactivate the record instead.';
+END$$
+DELIMITER ;
+
+-- Procedure for re-hiring inactive employees by creating a new record
+DELIMITER $$
+CREATE PROCEDURE 4CC_rehire_employee (
+    IN empNum INT,
+    IN newExtension VARCHAR(10),
+    IN newEmail VARCHAR(100),
+    IN newJobTitle VARCHAR(50),
+    IN newEmployeeType ENUM('S', 'N')
+)
+BEGIN
+    DECLARE retrievedLastName VARCHAR(50);
+    DECLARE retrievedFirstName VARCHAR(50);
+    DECLARE newEmployeeNumber INT;
+
+    -- Retrieve lastName and firstName of the inactive employee
+    SELECT lastName, firstName INTO retrievedLastName, retrievedFirstName
+    FROM employees
+    WHERE employeeNumber = empNum AND isActive = 0
+    LIMIT 1;
+
+    -- Check if the employee was found and is inactive
+    IF retrievedLastName IS NOT NULL AND retrievedFirstName IS NOT NULL THEN
+        -- Generate a new unique employee number
+        SELECT IFNULL(MAX(employeeNumber), 0) + 1 INTO newEmployeeNumber FROM employees;
+
+        -- Create a new employee record with updated details
+        INSERT INTO employees (employeeNumber, lastName, firstName, extension, email, jobTitle, employee_type, isActive)
+        VALUES (newEmployeeNumber, retrievedLastName, retrievedFirstName, newExtension, newEmail, newJobTitle, newEmployeeType, 1);
+    ELSE
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Employee not found or already active. Cannot rehire.';
+    END IF;
+END$$
+DELIMITER ;
+
+
+
+-- -- =============================================================
+-- -- 4CC TEST CASE 1: Verify that deleting an employee record is not allowed
+-- -- =============================================================
+
+-- -- Attempt to delete an employee record
+-- DELETE FROM employees
+-- WHERE employeeNumber = 1165;
+
+
+-- -- =============================================================
+-- -- 4CC TEST CASE 2: Verify that modification of inactive records is not allowed
+-- -- =============================================================
+
+-- -- Set an employee as inactive (simulates resignation)
+-- UPDATE employees
+-- SET isActive = 0
+-- WHERE employeeNumber = 1076;
+
+-- -- Attempt to modify an inactive employee’s details (should fail)
+-- UPDATE employees
+-- SET extension = "x9277" 
+-- WHERE employeeNumber = 1076;
+
+
+-- -- =============================================================
+-- -- 4CC TEST CASE 3: Verify that rehiring an inactive employee creates a new record with the same name
+-- -- =============================================================
+
+-- -- View the current employee records (to observe changes)
+-- SELECT * FROM employees;
+
+-- -- Rehire the employee with employeeNumber 1076 with new details
+-- CALL 4CC_rehire_employee(1076, 'x1234', 'newemail@example.com', 'Sales Rep', 'S');
+
+-- -- Verify that a new record is created while the old record remains inactive
+-- SELECT * FROM employees WHERE lastName = (SELECT lastName FROM employees WHERE employeeNumber = 1076);
+
+-- ========================================================================================================================================================================================================================================================================
+-- ========================================================================================================================================================================================================================================================================
+-- ========================================================================================================================================================================================================================================================================
+-- 4C-D: Sales Representatives are assigned to different offices for a limited period. If the office assignment will expire on the last day (end of office hours is at
+-- 6:00PM) and no new assignment is provided, the sales representative is automatically reassigned to the same assignment for a week. This is to avoid sales
+-- representatives to be in a “floating” status due to no office assignment. Because of this automatic reassignment, the sales manager recorded that facilitated
+-- the reassignment should be “System” (representing that this is system processed). The challenge to this reassignment is the Quota. The quota must be
+-- recomputed, such that the sales that were already facilitated by the sales representative during his/her previous assignment is deducted.
+-- ========================================================================================================================================================================================================================================================================
+-- ========================================================================================================================================================================================================================================================================
+-- ========================================================================================================================================================================================================================================================================
+
+-- Villaroman, Raphael Luis G.
+-- DBADM-103
+
+
+SET GLOBAL event_scheduler = ON;
+
+DROP EVENT IF EXISTS 4CD_auto_reassign_sales_rep;
+DROP PROCEDURE IF EXISTS 4CD_manual_reassign_sales_rep;
+
+-- Define the procedure to handle reassignment logic
+DELIMITER $$
+
+CREATE PROCEDURE 4CD_manual_reassign_sales_rep()
+BEGIN
+    -- Temporary table to calculate and store updated quotas for expired assignments
+    CREATE TEMPORARY TABLE IF NOT EXISTS temp_updated_quotas AS
+    SELECT 
+        sra.employeeNumber,
+        sra.officeCode,
+        MAX(sra.quota) - IFNULL(SUM(po.amountpaid), 0) AS adjustedQuota
+    FROM 
+        salesrepassignments sra
+    LEFT JOIN customers c ON c.salesRepEmployeeNumber = sra.employeeNumber
+    LEFT JOIN orders o ON o.customerNumber = c.customerNumber
+    LEFT JOIN payment_orders po ON po.orderNumber = o.orderNumber 
+        AND po.paymentTimestamp BETWEEN sra.startDate AND sra.endDate
+    WHERE 
+        sra.endDate = CURRENT_DATE 
+        AND sra.salesManagerNumber IS NULL
+    GROUP BY sra.employeeNumber, sra.officeCode;
+
+    -- Insert new assignments based on the adjusted quotas, extending for another week
+    INSERT INTO salesrepassignments (employeeNumber, officeCode, startDate, endDate, reason, quota, salesManagerNumber)
+    SELECT 
+        tq.employeeNumber,
+        tq.officeCode,
+        CURRENT_DATE,
+        DATE_ADD(CURRENT_DATE, INTERVAL 7 DAY),
+        'Automatic Reassignment by System',
+        tq.adjustedQuota,
+        NULL
+    FROM 
+        temp_updated_quotas tq;
+
+    -- Clean up the temporary table
+    DROP TEMPORARY TABLE IF EXISTS temp_updated_quotas;
+
+END $$
+
+DELIMITER ;
+
+-- Define an event to automatically call the procedure daily at 6:00 PM
+DELIMITER $$
+
+CREATE EVENT 4CD_auto_reassign_sales_rep
+ON SCHEDULE EVERY 1 DAY
+STARTS '2024-11-05 18:00:00'  -- Starts at 6:00 PM daily
+DO
+BEGIN
+    CALL 4CD_manual_reassign_sales_rep();
+END $$
+
+DELIMITER ;
+
+-- -- =============================================================
+-- -- 4CD TEST CASE 1: Verify that expired assignments are automatically extended for one week
+-- -- =============================================================
+
+-- -- Insert a new employee for testing with employeeNumber 2100
+-- INSERT INTO employees (employeeNumber, lastName, firstName, extension, email, jobTitle, employee_type, isActive)
+-- VALUES (2100, 'Doe', 'John', 'x1001', 'jdoe@example.com', 'Sales Rep', 'S', 1);
+
+-- -- Add the employee to the salesrepresentatives table to satisfy the foreign key constraint
+-- INSERT INTO salesrepresentatives (employeeNumber)
+-- VALUES (2100);
+
+-- -- Insert an initial office assignment for the new employee, ending today
+-- INSERT INTO salesrepassignments (employeeNumber, officeCode, startDate, endDate, reason, quota, salesManagerNumber)
+-- VALUES (2100, 1, DATE_SUB(CURRENT_DATE, INTERVAL 7 DAY), CURRENT_DATE, 'Initial Assignment', 1000.00, NULL);
+
+-- -- Execute the reassignment procedure
+-- CALL 4CD_manual_reassign_sales_rep();
+
+-- -- Verify that a new assignment record is created for the employee
+-- SELECT * FROM salesrepassignments WHERE employeeNumber = 2100 ORDER BY startDate DESC;
+
+-- -- Expected Outcome: A new assignment is created for one week with the adjusted quota.
+
+
+-- -- =============================================================
+-- -- 4CD TEST CASE 2: Verify automatic reassignment if assignment expires today
+-- -- =============================================================
+
+-- -- Insert a new employee for testing with employeeNumber 2101
+-- INSERT INTO employees (employeeNumber, lastName, firstName, extension, email, jobTitle, employee_type, isActive)
+-- VALUES (2101, 'Doe', 'Jane', 'x7890', 'jdoe@example.com', 'Sales Rep', 'S', 1);
+
+-- -- Add the employee to the salesrepresentatives table to satisfy the foreign key constraint
+-- INSERT INTO salesrepresentatives (employeeNumber)
+-- VALUES (2101);
+
+-- -- Insert an initial office assignment for the new employee, ending today
+-- INSERT INTO salesrepassignments (employeeNumber, officeCode, startDate, endDate, reason, quota, salesManagerNumber)
+-- VALUES (2101, 1, DATE_SUB(CURRENT_DATE, INTERVAL 7 DAY), CURRENT_DATE, 'Expiring Assignment', 1000.00, NULL);
+
+-- -- Manually trigger the reassignment procedure for testing
+-- CALL 4CD_manual_reassign_sales_rep();
+
+-- -- Verify that a new assignment is created with adjusted quota for employee 2101
+-- SELECT * FROM salesrepassignments WHERE employeeNumber = 2101 ORDER BY startDate DESC;
+
+-- -- Expected Outcome: A new assignment should be created for the next 7 days with an adjusted quota.
+
+
+-- ========================================================================================================================================================================================================================================================================
+-- ========================================================================================================================================================================================================================================================================
+-- ========================================================================================================================================================================================================================================================================
+-- 4C-E: If a new assignment is provided by the Sales Manager before the current assignment expires, the start date should automatically be the day following the
+-- last day of current assignment and should be restricted to a maximum of one month. Sales Manager dictate the quota that he/she will set for the sales
+-- representative.
+-- ========================================================================================================================================================================================================================================================================
+-- ========================================================================================================================================================================================================================================================================
+-- ========================================================================================================================================================================================================================================================================
+
+-- Villaroman, Raphael Luis G.
+-- DBADM-103
+
+DROP TRIGGER IF EXISTS 4CE_before_insert_salesrepassignments;
+
+DELIMITER $$
+
+CREATE TRIGGER 4CE_before_insert_salesrepassignments
+BEFORE INSERT ON salesrepassignments
+FOR EACH ROW
+BEGIN
+    DECLARE last_end_date DATE;
+    DECLARE errormessage VARCHAR(200);
+
+    -- Ensure the employee creating the new assignment is a Sales Manager
+    IF (SELECT COUNT(*) FROM sales_managers WHERE employeeNumber = NEW.salesManagerNumber) = 0 THEN
+        SET errormessage = 'Only Sales Managers can create new office assignments for Sales Representatives.';
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = errormessage;
+    END IF;
+
+    -- Retrieve the endDate of the employee's last assignment
+    SELECT MAX(endDate) INTO last_end_date
+    FROM salesrepassignments
+    WHERE employeeNumber = NEW.employeeNumber;
+
+    -- If a last_end_date exists, set startDate to the day after the last endDate
+    IF last_end_date IS NOT NULL THEN
+        SET NEW.startDate = DATE_ADD(last_end_date, INTERVAL 1 DAY);
+    ELSE
+        -- If no prior assignment, set startDate to the current date
+        SET NEW.startDate = CURRENT_DATE;
+    END IF;
+
+    -- Ensure endDate is no more than one month after startDate
+    IF NEW.endDate IS NULL OR NEW.endDate > DATE_ADD(NEW.startDate, INTERVAL 1 MONTH) THEN
+        SET NEW.endDate = DATE_ADD(NEW.startDate, INTERVAL 1 MONTH);
+    END IF;
+
+    -- Check if quota is provided by the Sales Manager; if not, default it to 0
+    IF NEW.quota IS NULL THEN
+        SET NEW.quota = 0.0;
+    END IF;
+
+    -- Set reason to indicate it's a new assignment if reason is not provided
+    IF NEW.reason IS NULL THEN
+        SET NEW.reason = 'New Assignment';
+    END IF;
+END $$
+
+DELIMITER ;
+
+-- =============================================================
+-- 4CE TEST CASE 1: Verify that only Sales Managers can create a new assignment for a Sales Representative
+-- =============================================================
+
+-- -- Insert a new employee for testing with employeeNumber 2201
+-- INSERT INTO employees (employeeNumber, lastName, firstName, extension, email, jobTitle, employee_type, isActive)
+-- VALUES (2201, 'Doe', 'Jane', 'x1002', 'jdoe@example.com', 'Sales Manager', 'S', 1);
+
+-- -- Add the employee to the non_salesrepresentatives table to satisfy the foreign key constraint for the sales_managers table
+-- INSERT INTO non_salesrepresentatives (employeeNumber, deptCode)
+-- VALUES (2201, 8001);
+
+-- -- Add the employee to the sales_managers table to allow them to manage sales assignments
+-- INSERT INTO sales_managers (employeeNumber)
+-- VALUES (2201);
+
+-- -- Insert a new Sales Representative to assign
+-- INSERT INTO employees (employeeNumber, lastName, firstName, extension, email, jobTitle, employee_type, isActive)
+-- VALUES (2202, 'Smith', 'John', 'x1003', 'jsmith@example.com', 'Sales Rep', 'S', 1);
+
+-- -- Add the employee to the salesrepresentatives table to satisfy the foreign key constraint
+-- INSERT INTO salesrepresentatives (employeeNumber)
+-- VALUES (2202);
+
+-- -- Attempt to create a new assignment by the Sales Manager (employeeNumber 2201) for the Sales Representative (employeeNumber 2202)
+-- INSERT INTO salesrepassignments (employeeNumber, officeCode, startDate, endDate, reason, quota, salesManagerNumber)
+-- VALUES (2202, 2, CURRENT_DATE, DATE_ADD(CURRENT_DATE, INTERVAL 1 MONTH), 'Initial Assignment', 1500.00, 2201);
+
+-- -- Verify that the assignment has been created successfully
+-- SELECT *
+-- FROM salesrepassignments
+-- WHERE employeeNumber = 2202 AND officeCode = 2 AND salesManagerNumber = 2201;
+
+-- -- Expected Outcome: A new assignment is created successfully by the Sales Manager for the Sales Representative.
+
+-- =============================================================
+-- 4CE TEST CASE 2: Verify that new assignments cannot exceed the maximum limit of one month
+-- =============================================================
+
+-- -- Insert a new employee for testing with employeeNumber 2203
+-- INSERT INTO employees (employeeNumber, lastName, firstName, extension, email, jobTitle, employee_type, isActive)
+-- VALUES (2203, 'Brown', 'Alice', 'x1004', 'abrown@example.com', 'Sales Manager', 'S', 1);
+
+-- -- Add the employee to the sales_managers table
+-- INSERT INTO non_salesrepresentatives (employeeNumber, deptCode)
+-- VALUES (2203, 8001);
+
+-- INSERT INTO sales_managers (employeeNumber)
+-- VALUES (2203);
+
+-- -- Insert a new Sales Representative to assign
+-- INSERT INTO employees (employeeNumber, lastName, firstName, extension, email, jobTitle, employee_type, isActive)
+-- VALUES (2204, 'Johnson', 'Emily', 'x1005', 'ejohnson@example.com', 'Sales Rep', 'S', 1);
+
+-- -- Add the employee to the salesrepresentatives table
+-- INSERT INTO salesrepresentatives (employeeNumber)
+-- VALUES (2204);
+
+-- -- Attempt to create a new assignment with an endDate that exceeds one month
+-- INSERT INTO salesrepassignments (employeeNumber, officeCode, startDate, endDate, reason, quota, salesManagerNumber)
+-- VALUES (2204, 2, CURRENT_DATE, DATE_ADD(CURRENT_DATE, INTERVAL 40 DAY), 'Assignment Exceeds One Month', 2000.00, 2203);
+
+-- -- Expected Outcome: The assignment should be adjusted to have an endDate that is no more than one month from the startDate.
+
+-- -- Verify that the endDate is no more than one month after the startDate
+-- SELECT * FROM salesrepassignments WHERE employeeNumber = 2204;
+
+-- -- =============================================================
+-- -- 4CE TEST CASE 3: Verify that a non-Sales Manager cannot create a new assignment for a Sales Representative
+-- -- =============================================================
+
+-- -- Insert a new employee for testing with employeeNumber 2205 (not a Sales Manager)
+-- INSERT INTO employees (employeeNumber, lastName, firstName, extension, email, jobTitle, employee_type, isActive)
+-- VALUES (2205, 'Wilson', 'Mark', 'x1006', 'mwilson@example.com', 'Inventory Manager', 'N', 1);
+
+-- -- Add the employee to the non_salesrepresentatives table
+-- INSERT INTO non_salesrepresentatives (employeeNumber, deptCode)
+-- VALUES (2205, 8001);
+
+-- -- Insert a new Sales Representative to assign
+-- INSERT INTO employees (employeeNumber, lastName, firstName, extension, email, jobTitle, employee_type, isActive)
+-- VALUES (2206, 'Taylor', 'Chris', 'x1007', 'ctaylor@example.com', 'Sales Rep', 'S', 1);
+
+-- -- Add the employee to the salesrepresentatives table
+-- INSERT INTO salesrepresentatives (employeeNumber)
+-- VALUES (2206);
+
+-- -- Attempt to create a new assignment by the non-Sales Manager (employeeNumber 2205) for the Sales Representative (employeeNumber 2206)
+-- INSERT INTO salesrepassignments (employeeNumber, officeCode, startDate, endDate, reason, quota, salesManagerNumber)
+-- VALUES (2206, 3, CURRENT_DATE, DATE_ADD(CURRENT_DATE, INTERVAL 1 MONTH), 'Invalid Assignment Attempt', 1200.00, 2205);
+
+-- -- Expected Outcome: An error should be raised, indicating that only Sales Managers can create or modify sales assignments.
+
+-- ========================================================================================================================================================================================================================================================================
+-- ========================================================================================================================================================================================================================================================================
+-- ========================================================================================================================================================================================================================================================================
+-- 4C-F: If a Sales Representative is moved to a different employee type in the middle of his/her assignment, his end date will automatically be changed to the day
+-- the Sales Representative is moved to a different employee type.
+-- ========================================================================================================================================================================================================================================================================
+-- ========================================================================================================================================================================================================================================================================
+-- ========================================================================================================================================================================================================================================================================
+-- Part 4C-F
+-- Ridz Rigat
+
+
+DROP TRIGGER IF EXISTS 4CF_update_sales_rep_assignment_end_date;
+
+DELIMITER $$
+
+CREATE TRIGGER 4CF_update_sales_rep_assignment_end_date
+BEFORE UPDATE ON employees
+FOR EACH ROW
+BEGIN
+    IF (OLD.employee_type = 'S') AND (NEW.employee_type != 'S') THEN
+        -- Update the endDate of their active assignment to today
+        UPDATE salesrepassignments
+        SET endDate = CURDATE()
+        WHERE employeeNumber = NEW.employeeNumber;
+    END IF;
+END $$
+
+DELIMITER ;
+
+
+-- SHOW TRIGGERS;
+
+-- =============================================================
+-- 4CF TEST CASE 1: Verify that an active Sales Representative's assignment end date is updated when they are moved to a different employee type and job title
+-- Expected Outcome: The end date of the active assignment for the Sales Representative should be updated to the current date
+-- =============================================================
+
+-- -- Insert a new Sales Representative for testing with employeeNumber 2208
+-- INSERT INTO employees (employeeNumber, lastName, firstName, extension, email, jobTitle, employee_type, isActive)
+-- VALUES (2209, 'Doe', 'James', 'x4004', 'jdoe2208@example.com', 'Sales Rep', 'S', 1);
+
+-- -- Add the employee to the salesrepresentatives table to satisfy the foreign key constraint
+-- INSERT INTO salesrepresentatives (employeeNumber)
+-- VALUES (2209);
+
+-- -- Create an initial office assignment for the new Sales Representative, with an active assignment (endDate is NULL)
+-- INSERT INTO salesrepassignments (employeeNumber, officeCode, startDate, endDate, reason, quota, salesManagerNumber)
+-- VALUES (2209, 3, DATE_SUB(CURRENT_DATE, INTERVAL 7 DAY), NULL, 'Current Assignment', 2000.00, 2201);
+
+-- -- Update the employee's job title and employee type (moving from Sales Rep to Inventory Manager)
+-- UPDATE employees
+-- SET jobTitle = 'Inventory Manager', employee_type = 'N'
+-- WHERE employeeNumber = 2209;
+
+-- -- Verify the assignment record after updating employee type
+-- SELECT * FROM salesrepassignments WHERE employeeNumber = 2209;
+-- -- Expected Outcome: The endDate of the assignment should be updated to the current date
