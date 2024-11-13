@@ -2142,7 +2142,7 @@ DROP EVENT IF EXISTS 4AF_cancel_unshipped_orders_event;
 DELIMITER $$
 CREATE EVENT 4AF_cancel_unshipped_orders_event
 ON SCHEDULE 
-EVERY 7 DAY
+EVERY 5 SECOND 
 DO
 BEGIN
     UPDATE orders
@@ -3387,3 +3387,5 @@ DELIMITER ;
 -- -- Verify the assignment record after updating employee type
 -- SELECT * FROM salesrepassignments WHERE employeeNumber = 2209;
 -- -- Expected Outcome: The endDate of the assignment should be updated to the current date
+
+-- ============================================================
