@@ -13,7 +13,7 @@ BEGIN
     IF NEW.productCategory != OLD.productCategory THEN
 
         -- Step 1: Ensure only inventory managers can change product status
-        IF (SELECT role FROM Users WHERE username = USER()) != 'Inventory Manager' THEN
+        IF (SELECT role FROM Users WHERE username = USER()) != 'inventorymodule' THEN
             SET errormessage = 'Only Inventory Managers can discontinue or reactivate products.';
             SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = errormessage;
         END IF;
