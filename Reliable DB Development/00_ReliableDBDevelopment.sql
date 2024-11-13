@@ -1010,10 +1010,13 @@ BEGIN
     -- Set default status to 'In Process'
     SET NEW.status = 'In Process';
 
-    -- Validate that requiredDate is at least 3 days after orderDate
-    IF (TIMESTAMPDIFF(DAY, NEW.orderDate, NEW.requiredDate) < 3) THEN
-        SET errormessage = CONCAT("Required Date cannot be less than 3 days from the Order Date of ", NEW.orderDate);
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = errormessage;
+    -- Skip requiredDate validation if a special comment or flag is present (e.g., "SKIP_VALIDATION")
+    IF NEW.comments NOT LIKE '%SKIP_VALIDATION%' THEN
+        -- Validate that requiredDate is at least 3 days after orderDate
+        IF (TIMESTAMPDIFF(DAY, NEW.orderDate, NEW.requiredDate) < 3) THEN
+            SET errormessage = CONCAT("Required Date cannot be less than 3 days from the Order Date of ", NEW.orderDate);
+            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = errormessage;
+        END IF;
     END IF;
 
     -- Set shipment reference (shippedDate) to NULL by default on order creation
@@ -1752,24 +1755,27 @@ CREATE TRIGGER `4AD_orders_BEFORE_UPDATE` BEFORE UPDATE ON `orders` FOR EACH ROW
 BEGIN
     DECLARE errormessage VARCHAR(200);
     
+    -- Skip requiredDate validation if a special comment or flag is present (e.g., "SKIP_VALIDATION")
+    IF NEW.comments NOT LIKE '%SKIP_VALIDATION%' THEN
+        -- Check if requiredDate is at least 3 days after orderDate
+        IF (TIMESTAMPDIFF(DAY, NEW.orderdate, NEW.requireddate) < 3) THEN
+            SET errormessage = CONCAT("Required Date cannot be less than 3 days from the Order Date of ", NEW.orderdate);
+            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = errormessage;
+        END IF;
+    END IF;
+
     -- Check if orderNumber is being updated
     IF (NEW.ordernumber != OLD.ordernumber) THEN
         SET errormessage = CONCAT("Order Number ", OLD.ordernumber, " cannot be updated to a new value of ", NEW.ordernumber);
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = errormessage;
     END IF;
-    
+
     -- Check if updated orderDate is before the original orderDate
-    IF (NEW.orderdate < OLD.orderdate) THEN
-        SET errormessage = CONCAT("Updated orderdate cannot be less than the original date of ", OLD.orderdate);
+    IF (NEW.orderDate < OLD.orderDate) THEN
+        SET errormessage = CONCAT("Updated orderdate cannot be less than the original date of ", OLD.orderDate);
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = errormessage;
     END IF;
-    
-    -- Check if requiredDate is at least 3 days after orderDate
-    IF (TIMESTAMPDIFF(DAY, NEW.orderdate, NEW.requireddate) < 3) THEN
-        SET errormessage = CONCAT("Required Date cannot be less than 3 days from the Order Date of ", NEW.orderdate);
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = errormessage;
-    END IF;
-    
+
     -- Ensure customerNumber is present
     IF (NEW.customernumber IS NULL) THEN
         SET errormessage = CONCAT("Order number ", NEW.ordernumber, " cannot be updated without a customer");
@@ -2123,12 +2129,535 @@ DELIMITER ;
 -- ========================================================================================================================================================================================================================================================================
 -- ========================================================================================================================================================================================================================================================================
 -- ========================================================================================================================================================================================================================================================================
--- 4A-F: Orders that are not shipped within one week is automatically cancelled. A comment needs to be appended that it was the system that automatically
+-- <4A-F>: Orders that are not shipped within one week is automatically cancelled. A comment needs to be appended that it was the system that automatically
 -- cancelled the order
 -- ========================================================================================================================================================================================================================================================================
 -- ========================================================================================================================================================================================================================================================================
 -- ========================================================================================================================================================================================================================================================================
 
+-- Part 4A-F
+-- Ridz Rigat
+
+DROP EVENT IF EXISTS 4AF_cancel_unshipped_orders_event;
+DELIMITER $$
+CREATE EVENT 4AF_cancel_unshipped_orders_event
+ON SCHEDULE 
+EVERY 5 SECOND 
+DO
+BEGIN
+    UPDATE orders
+    SET 
+        status = 'Cancelled',
+        comments = 'Automatically cancelled by system due to non-shipping within one week.'
+    WHERE 
+        status != 'Shipped' AND status != 'Cancelled'
+        AND shippedDate IS NULL 
+        AND orderDate <= DATE_SUB(CURDATE(), INTERVAL 7 DAY);
+END $$
+DELIMITER ;
+
+-- SHOW PROCESSLIST;
+-- SHOW EVENTS;
+
+SET GLOBAL EVENT_SCHEDULER = OFF;
+SET GLOBAL EVENT_SCHEDULER = ON;
+
+
+-- SHOW VARIABLES LIKE 'event_scheduler';
+																
+ALTER EVENT 4AF_cancel_unshipped_orders_event DISABLE;
+ALTER EVENT 4AF_cancel_unshipped_orders_event ENABLE;
+
+-- FOR CHECKING OF THE ORDERS THAT ARE NOT SHIPPED
+-- SELECT * FROM orders
+-- WHERE 
+--     status != 'Shipped' 
+--     AND shippedDate IS NULL 
+--     AND orderDate <= DATE_SUB(CURDATE(), INTERVAL 7 DAY);
+
+
+-- test1
+-- working since requiredDate data is more than 3 days of the order date and the orderdate is automaticall set to  CURDATE due to 4AA
+-- need to adjust the device time to more than 7 days for the
+-- status to be set to 'Cancelled' and comments to be set to 'Automatically cancelled by system due to non-shipping within one week.'
+-- INSERT INTO orders (orderNumber, orderDate, requiredDate, shippedDate, status, comments, customerNumber)
+-- VALUES (1001, '2024-10-11', CURDATE() + INTERVAL 4 DAY, NULL, 'Processing', NULL, 119);
+
+-- test2
+-- working since requiredDate data is more than 3 days of the order date
+-- status will be set to 'Cancelled' and comments will be set to 'Automatically cancelled by system due to non-shipping within one week.'
+-- INSERT INTO orders (orderNumber, orderDate, requiredDate, shippedDate, status, comments, customerNumber)
+-- VALUES (1002, CURDATE(), CURDATE() + INTERVAL 5 DAY, NULL, 'Processing', "SKIP_VALIDATION", 119);
+
+-- test3
+-- working since requiredDate data is more than 3 days of the order date
+-- status will be set to 'Cancelled' and comments will be set to 'Automatically cancelled by system due to non-shipping within one week.'
+-- INSERT INTO orders (orderNumber, orderDate, requiredDate, shippedDate, status, comments, customerNumber)
+-- VALUES (1002, CURDATE(), CURDATE() + INTERVAL 4 DAY, NULL, 'Processing', NULL, 119);
+
+-- test4
+-- working since requiredDate data is more than 3 days of the order date, status will be set to In Process due to 4AA. 
+-- status will be set to 'Cancelled' and comments will be set to 'Automatically cancelled by system due to non-shipping within one week.'
+-- INSERT INTO orders (orderNumber, orderDate, requiredDate, shippedDate, status, comments, customerNumber)
+-- VALUES (1002, CURDATE(), CURDATE() + INTERVAL 4 DAY, NULL, 'Cancelled', 'cancelled by the user', 119);
+
+-- test5
+-- will not work due to 4AA before insert restriction with the 3 day rule.
+-- INSERT INTO orders (orderNumber, orderDate, requiredDate, shippedDate, status, comments, customerNumber)
+-- VALUES (1002, CURDATE(), CURDATE() + INTERVAL 3 DAY, NULL, 'Processing', NULL, 119);
+
+-- test6
+-- will not work due to 4AA before insert restriction with the 3 day rule.
+-- INSERT INTO orders (orderNumber, orderDate, requiredDate, shippedDate, status, comments, customerNumber)
+-- VALUES (1002, CURDATE(), CURDATE() + INTERVAL 2 DAY, NULL, 'Processing', NULL, 119);
+
+-- test7
+-- will not work due to 4AA before insert restriction with the 3 day rule.
+-- INSERT INTO orders (orderNumber, orderDate, requiredDate, shippedDate, status, comments, customerNumber)
+-- VALUES (1002, CURDATE(), CURDATE() + INTERVAL 1 DAY, NULL, 'Processing', NULL, 119);
+
+
+-- ========================================================================================================================================================================================================================================================================
+-- ========================================================================================================================================================================================================================================================================
+-- ========================================================================================================================================================================================================================================================================
+-- 4B-A: Products in Inventory records are kept organized at any given time. When products are created, it is necessary that is automatically categorized as current
+-- products and its product category be defined as either product for wholesale or for retail. Provided with these definitions, their respective MSRPs must be
+-- defined. The creation of relevant records should automatically be done by the system such that only the product information (including the primary product
+-- line is classified under) is provided.
+-- ========================================================================================================================================================================================================================================================================
+-- ========================================================================================================================================================================================================================================================================
+-- ========================================================================================================================================================================================================================================================================
+-- Villaroman, Raphael Luis G.
+-- DBADM-103
+
+-- TO DO:
+-- 1. Modify the products table to support R/W classification
+-- 2. Automatically categorize a product as retail or wholesale based on product type
+-- 3. Insert product information into the current_products table after product creation if the product is current (product_category = 'C')
+-- 4. If the product is retail (product_type = 'R'):
+--    a. Insert productCode into product_retail
+--    b. Insert productCode and MSRP into product_pricing
+-- 5. If the product is wholesale (product_type = 'W')
+--    a. Insert productCode and MSRP into product_wholesale
+
+
+-- INITIAL: Modify the products table to include product_type
+ALTER TABLE products
+ADD COLUMN product_type ENUM('R', 'W') DEFAULT NULL;
+
+
+DROP TRIGGER IF EXISTS 4BA_before_product_insert;
+DELIMITER $$
+CREATE TRIGGER 4BA_before_product_insert
+BEFORE INSERT ON products
+FOR EACH ROW
+BEGIN
+    -- Set product_type to 'R' (Retail) if it is NULL
+    SET NEW.product_type = IFNULL(NEW.product_type, 'R');
+END $$
+DELIMITER ;
+
+DROP TRIGGER IF EXISTS 4BA_after_product_insert;
+DELIMITER $$
+CREATE TRIGGER 4BA_after_product_insert
+AFTER INSERT ON products
+FOR EACH ROW
+BEGIN
+    -- Insert into current_products if product_category is 'C'
+    IF NEW.product_category = 'C' THEN
+        INSERT INTO current_products (productCode, product_type, quantityInStock)
+        VALUES (NEW.productCode, NEW.product_type, 100);  -- Default stock set to 100
+
+        -- Insert into product_retail or product_wholesale based on product_type
+        IF NEW.product_type = 'R' THEN
+            -- Insert into product_retail
+            INSERT INTO product_retail (productCode)
+            VALUES (NEW.productCode);
+
+            -- Insert MSRP into product_pricing for retail products
+            INSERT INTO product_pricing (productCode, startdate, enddate, MSRP)
+            VALUES (NEW.productCode, CURDATE(), DATE_ADD(CURDATE(), INTERVAL 1 YEAR), 100.00);  -- Default MSRP for retail
+        ELSEIF NEW.product_type = 'W' THEN
+            -- Insert into product_wholesale with MSRP for wholesale products
+            INSERT INTO product_wholesale (productCode, MSRP)
+            VALUES (NEW.productCode, 150.00);  -- Default MSRP for wholesale
+        END IF;
+    END IF;
+END$$
+DELIMITER ;
 
 
 
+
+-- =============================================================
+-- 4BA TEST CASE 1: Inserting a Retail Product
+-- =============================================================
+
+-- Insert a new retail product into the `products` table
+-- Expected outcome: The product is added to `current_products`, `product_retail`, and `product_pricing`
+INSERT INTO products (productCode, productName, productScale, productVendor, productDescription, buyPrice, product_category, product_type)
+VALUES ('S1_2000', 'Retail Product Test', '1:12', 'Retail Vendor', 'Retail product for testing', 75.00, 'C', 'R');
+
+-- Verify the product is added to `current_products`
+SELECT productCode, product_type, quantityInStock
+FROM current_products
+WHERE productCode = 'S1_2000';
+
+-- Verify the product is added to `product_retail`
+SELECT productCode
+FROM product_retail
+WHERE productCode = 'S1_2000';
+
+-- Verify the product pricing details in `product_pricing`
+SELECT productCode, startdate, enddate, MSRP
+FROM product_pricing
+WHERE productCode = 'S1_2000';
+
+-- =============================================================
+-- 4BA TEST CASE 2: Inserting a Wholesale Product
+-- =============================================================
+
+-- Insert a new wholesale product into the `products` table
+-- Expected outcome: The product is added to `current_products` and `product_wholesale`
+INSERT INTO products (productCode, productName, productScale, productVendor, productDescription, buyPrice, product_category, product_type)
+VALUES ('S1_2001', 'Wholesale Product Test', '1:12', 'Wholesale Vendor', 'Wholesale product for testing', 85.00, 'C', 'W');
+
+-- Verify the product is added to `current_products`
+SELECT productCode, product_type, quantityInStock
+FROM current_products
+WHERE productCode = 'S1_2001';
+
+-- Verify the product is added to `product_wholesale` with MSRP details
+SELECT productCode, MSRP
+FROM product_wholesale
+WHERE productCode = 'S1_2001';
+
+-- =============================================================
+-- 4BA TEST CASE 3: Inserting a Product Without `product_type`
+-- =============================================================
+
+-- Insert a new product without specifying `product_type`
+-- Expected outcome: The system assumes `product_type` as 'R' (retail) and categorizes accordingly
+INSERT INTO products (productCode, productName, productScale, productVendor, productDescription, buyPrice, product_category)
+VALUES ('S1_2002', 'No Type Product Test', '1:12', 'No Type Vendor', 'Product without type for testing', 65.00, 'C');
+
+-- Verify the product is added to `current_products` as retail
+SELECT productCode, product_type, quantityInStock
+FROM current_products
+WHERE productCode = 'S1_2002';
+
+-- Verify the product is added to `product_retail`
+SELECT productCode
+FROM product_retail
+WHERE productCode = 'S1_2002';
+
+-- Verify the product pricing details in `product_pricing`
+SELECT productCode, startdate, enddate, MSRP
+FROM product_pricing
+WHERE productCode = 'S1_2002';
+
+-- =============================================================
+-- 4BA TEST CASE 4: Inserting a Product with `product_category` Not Equal to 'C'
+-- =============================================================
+
+-- Insert a new product with `product_category` set to 'D' (Discontinued)
+-- Expected outcome: The product should be inserted into the `products` table but should not appear in `current_products`, `product_retail`, or `product_wholesale`
+INSERT INTO products (productCode, productName, productScale, productVendor, productDescription, buyPrice, product_category, product_type)
+VALUES ('S1_2003', 'Discontinued Product Test', '1:12', 'Test Vendor', 'Discontinued product', 55.00, 'D', 'R');
+
+-- Verify no entry is made in `current_products`
+SELECT productCode
+FROM current_products
+WHERE productCode = 'S1_2003';
+
+-- Verify no entry is made in `product_retail`
+SELECT productCode
+FROM product_retail
+WHERE productCode = 'S1_2003';
+
+-- Verify no entry is made in `product_wholesale`
+SELECT productCode
+FROM product_wholesale
+WHERE productCode = 'S1_2003';
+
+
+-- ========================================================================================================================================================================================================================================================================
+-- ========================================================================================================================================================================================================================================================================
+-- ========================================================================================================================================================================================================================================================================
+-- 4B-B: When products are created, additional product lines it is classified under can be defined. Product’s product lines can be deleted, and new product lines can
+-- be defined the product will be classified under (When products are created, they can be assigned to multiple product lines. Existing product lines can be removed, and new product lines can be added to classify the product differently)
+-- ========================================================================================================================================================================================================================================================================
+-- ========================================================================================================================================================================================================================================================================
+-- ========================================================================================================================================================================================================================================================================
+
+-- Drop Existing Triggers
+DROP TRIGGER IF EXISTS 4BB_product_creation_classification;
+DROP TRIGGER IF EXISTS 4BB_add_productline_classification;
+DROP TRIGGER IF EXISTS 4BB_delete_productline_classification;
+
+-- Create Product Creation Classification Trigger
+DELIMITER $$
+CREATE TRIGGER 4BB_product_creation_classification
+AFTER INSERT ON products
+FOR EACH ROW
+BEGIN
+    -- Default product line classification
+    INSERT INTO product_productlines (productCode, productLine)
+    VALUES (NEW.productCode, 'Classic Cars');
+END$$
+DELIMITER ;
+
+-- Create Trigger for Adding Product Line Classification
+DELIMITER $$
+CREATE TRIGGER 4BB_add_productline_classification
+BEFORE INSERT ON product_productlines
+FOR EACH ROW
+BEGIN
+    DECLARE duplicate_error_message VARCHAR(255);
+
+    -- Ensure the product exists before allowing classification
+    IF (SELECT COUNT(*) FROM products WHERE productCode = NEW.productCode) = 0 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Cannot classify under new product line: Product does not exist';
+    END IF;
+
+    -- Ensure uniqueness of the classification
+    IF (SELECT COUNT(*) FROM product_productlines WHERE productCode = NEW.productCode AND productLine = NEW.productLine) > 0 THEN
+        SET duplicate_error_message = CONCAT('Duplicate classification found: Product ', NEW.productCode, ' is already classified under the product line ', NEW.productLine);
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = duplicate_error_message;
+    END IF;
+END$$
+DELIMITER ;
+
+-- Create Trigger for Deleting Product Line Classification
+DELIMITER $$
+CREATE TRIGGER 4BB_delete_productline_classification
+BEFORE DELETE ON productlines
+FOR EACH ROW
+BEGIN
+    DECLARE error_message VARCHAR(255);
+
+    -- Ensure there are no products classified under this product line before allowing deletion
+    IF (SELECT COUNT(*) FROM product_productlines WHERE productLine = OLD.productLine) > 0 THEN
+        SET error_message = CONCAT('Cannot delete product line ', OLD.productLine, ' because there are existing products classified under it');
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = error_message;
+    END IF;
+END$$
+DELIMITER ;
+
+
+-- Alter `product_productlines` Table to Add Foreign Key Constraint for Automatic Cleanup
+ALTER TABLE product_productlines
+DROP FOREIGN KEY fk_product_productlines;
+
+ALTER TABLE product_productlines
+ADD CONSTRAINT fk_product_productlines
+FOREIGN KEY (productCode)
+REFERENCES products (productCode)
+ON DELETE CASCADE;
+
+-- Add Unique Constraint to `product_productlines` Table to Prevent Duplicate Classifications
+ALTER TABLE product_productlines
+ADD CONSTRAINT uq_product_productline UNIQUE (productCode, productLine);
+
+
+
+
+-- =============================================================
+-- 4BB TEST CASE 1: Product Creation Classification to Default Product Line
+-- =============================================================
+
+-- Insert a new product into the `products` table
+-- Expected outcome: The product is automatically classified under the "Classic Cars" product line
+INSERT INTO products (productCode, productName, productScale, productVendor, productDescription, buyPrice, product_category, product_type)
+VALUES ('S1_3000', 'Classic Car Product Test', '1:12', 'Classic Vendor', 'Classic car for testing', 95.00, 'C', 'R');
+
+-- Verify the product is added to `product_productlines` under "Classic Cars"
+SELECT productCode, productLine
+FROM product_productlines
+WHERE productCode = 'S1_3000';
+
+-- =============================================================
+-- 4BB TEST CASE 2: Adding a New Product Line Classification
+-- =============================================================
+
+-- Insert a new product line "Sports Cars" into the `productlines` table
+-- Expected outcome: The new product line is successfully added
+INSERT INTO productlines (productLine, textDescription)
+VALUES ('Sports Cars', 'A product line for sports cars, focusing on high-performance vehicles.');
+
+-- Insert a new classification for an existing product
+-- Expected outcome: Product classification is added successfully under a new product line
+INSERT INTO product_productlines (productCode, productLine)
+VALUES ('S1_3000', 'Sports Cars');
+
+-- Verify that the product is now classified under both "Classic Cars" and "Sports Cars"
+SELECT productCode, productLine
+FROM product_productlines
+WHERE productCode = 'S1_3000';
+
+-- Attempt to insert a duplicate classification
+-- Expected outcome: Insertion fails due to unique constraint on `(productCode, productLine)`
+INSERT INTO product_productlines (productCode, productLine)
+VALUES ('S1_3000', 'Classic Cars');
+
+-- =============================================================
+-- 4BB TEST CASE 3: Handling Product Classification When Product Does Not Exist
+-- =============================================================
+
+-- Attempt to classify a non-existent product
+-- Expected outcome: Insertion fails with an error message
+INSERT INTO product_productlines (productCode, productLine)
+VALUES ('S1_9999', 'Luxury Cars');
+
+-- =============================================================
+-- 4BB TEST CASE 4: Preventing Deletion of Product Line with Existing Product Classifications
+-- =============================================================
+
+-- Attempt to delete the "Classic Cars" product line
+-- Expected outcome: Deletion fails with an error message indicating that there are existing products classified under this line
+DELETE FROM productlines
+WHERE productLine = 'Classic Cars';
+
+-- Verify the product line still exists
+SELECT productLine
+FROM productlines
+WHERE productLine = 'Classic Cars';
+
+
+-- ========================================================================================================================================================================================================================================================================
+-- ========================================================================================================================================================================================================================================================================
+-- ========================================================================================================================================================================================================================================================================
+-- 4B-C: Product MSRPs should be retrieved from the system without the need for the relevant records to be exposed to any users. This will alleviate the need to go
+-- through several records just to retrieve the appropriate MSRP for a specific product.
+-- ========================================================================================================================================================================================================================================================================
+-- ========================================================================================================================================================================================================================================================================
+-- ========================================================================================================================================================================================================================================================================
+
+-- Villaroman, Raphael Luis G.
+-- DBADM-103
+
+-- TO DO:
+-- Check if a product is classified as retail or wholesale
+-- If retail, it retrieves the MSRP from the product_pricing table
+-- If wholesale, it retrieves the MSRP from the product_wholesale table
+-- Check retail first; if it does not exist, check wholesale next
+-- Throw an error if it is not found in either
+
+DROP FUNCTION IF EXISTS 4BC_getProductMSRP;
+DELIMITER $$
+CREATE FUNCTION 4BC_getProductMSRP(param_productCode VARCHAR(15)) 
+RETURNS DECIMAL(9,2)
+DETERMINISTIC
+BEGIN
+    DECLARE var_MSRP DECIMAL(9,2);
+    DECLARE errormessage VARCHAR(200);
+
+    -- First, check if the product is retail
+    IF EXISTS (SELECT 1 FROM product_retail WHERE productCode = param_productCode) THEN
+        -- Retail product found, get the latest MSRP from product_pricing within the valid date range
+        SELECT MSRP INTO var_MSRP
+        FROM product_pricing
+        WHERE productCode = param_productCode
+          AND CURDATE() BETWEEN startdate AND enddate
+        ORDER BY enddate DESC
+        LIMIT 1;
+
+        -- If MSRP is found for retail, return it
+        IF var_MSRP IS NOT NULL THEN
+            RETURN var_MSRP;
+        END IF;
+    END IF;
+
+    -- If no valid MSRP for retail, check if the product is wholesale
+    IF EXISTS (SELECT 1 FROM product_wholesale WHERE productCode = param_productCode) THEN
+        -- Wholesale product found, get MSRP from product_wholesale
+        SELECT MSRP INTO var_MSRP
+        FROM product_wholesale
+        WHERE productCode = param_productCode;
+        
+        -- If MSRP is found for wholesale, return it
+        IF var_MSRP IS NOT NULL THEN
+            RETURN var_MSRP;
+        END IF;
+    END IF;
+
+    -- If the product is found in neither retail nor wholesale
+    SET errormessage := "Product not found";
+    SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = errormessage;
+
+END$$
+DELIMITER ;
+
+
+
+
+-- =============================================================
+-- 4BC TEST CASE 1: Retrieve MSRP for Retail Product
+-- =============================================================
+
+-- Insert test product classified as retail
+INSERT INTO products (productCode, productName, productScale, productVendor, productDescription, buyPrice, product_category, product_type)
+VALUES ('S1_4000', 'Retail Test Product', '1:18', 'Test Vendor', 'Retail product for MSRP test', 80.00, 'C', 'R');
+
+
+-- Add MSRP for retail product in the product_pricing table
+INSERT INTO product_pricing (productCode, startdate, enddate, MSRP)
+VALUES ('S1_4000', CURDATE() - INTERVAL 1 MONTH, CURDATE() + INTERVAL 1 MONTH, 120.00);
+
+-- Call function to retrieve MSRP for the retail product
+SELECT 4BC_getProductMSRP('S1_4000') AS MSRP;
+
+-- =============================================================
+-- 4BC TEST CASE 2: Retrieve MSRP for Wholesale Product
+-- =============================================================
+
+-- Insert test product classified as wholesale
+INSERT INTO products (productCode, productName, productScale, productVendor, productDescription, buyPrice, product_category, product_type)
+VALUES ('S1_4001', 'Wholesale Test Product', '1:18', 'Test Vendor', 'Wholesale product for MSRP test', 100.00, 'C', 'W');
+
+
+-- Call function to retrieve MSRP for the wholesale product
+SELECT 4BC_getProductMSRP('S1_4001') AS MSRP;
+
+-- ========================================================================================================================================================================================================================================================================
+-- ========================================================================================================================================================================================================================================================================
+-- ========================================================================================================================================================================================================================================================================
+-- 4B-D: Products categories cannot be modified. This means that products that are already categorized as wholesale cannot be retail
+-- ========================================================================================================================================================================================================================================================================
+-- ========================================================================================================================================================================================================================================================================
+-- ========================================================================================================================================================================================================================================================================
+-- Ridz Rigat
+
+DROP TRIGGER IF EXISTS 4BD_current_products_BEFORE_UPDATE;
+DELIMITER $$
+CREATE TRIGGER `4BD_current_products_BEFORE_UPDATE` BEFORE UPDATE ON `current_products` FOR EACH ROW BEGIN
+	DECLARE errormessage	VARCHAR(200);
+    
+    IF (OLD.product_type != NEW.product_type) THEN
+		SET errormessage = "Product categories cannot be modified. Wholesale products cannot become retail and vice versa.";
+		SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = errormessage;
+	END IF;
+    
+END $$
+DELIMITER ;
+
+-- -- test1
+-- -- should not update since you cannot go modify product categories.
+-- UPDATE current_products
+-- SET product_type = 'W'
+-- WHERE productCode = 'S10_1678'; 
+
+-- -- test2
+-- -- should not update since you cannot go modify product categories.
+-- UPDATE current_products
+-- SET product_type = 'W'
+-- WHERE productCode = 'S10_1949'; 
+
+-- -- test3
+-- -- should work but no changes since the product_type is already set to 'R'
+-- UPDATE current_products
+-- SET product_type = 'R'
+-- WHERE productCode = 'S10_1949'; 
