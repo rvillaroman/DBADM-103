@@ -8,7 +8,7 @@ CREATE TRIGGER 4CF_update_sales_rep_assignment_end_date
 BEFORE UPDATE ON employees
 FOR EACH ROW
 BEGIN
-    IF (OLD.employee_type = 'S') AND (NEW.employee_type = 'N' OR NEW.employee_type = 'SM' OR NEW.employee_type = 'IM') THEN
+    IF (OLD.employee_type = 'S') AND (NEW.employee_type = 'N') THEN
         UPDATE salesRepAssignments
         SET endDate = CURDATE()
         WHERE employeeNumber = NEW.employeeNumber
