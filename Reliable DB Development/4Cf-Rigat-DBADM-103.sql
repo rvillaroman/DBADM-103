@@ -19,7 +19,7 @@ DELIMITER ;
 SHOW TRIGGERS;
 
 -- test1
--- should update the endDate to CURDATE if the endDate is null, it means assignment is still active
+-- should update the endDate to CURDATE
 -- UPDATE employees
 -- SET employee_type = 'N'
 -- WHERE employeeNumber = 1188;
