@@ -4,9 +4,73 @@
 -- Ridz Rigat
 -- ITDBADM_S16
 
+-- new getMSRP
+DROP FUNCTION IF EXISTS getMSRP_2;
+DELIMITER $$
+CREATE FUNCTION getMSRP_2 (param_productCode VARCHAR(15), param_origdate DATE) 
+RETURNS DECIMAL(9,2)
+DETERMINISTIC
+BEGIN
+	DECLARE	var_productcategory	ENUM('C', 'D');
+    DECLARE var_producttype		ENUM('R', 'W');
+    DECLARE var_MSRP			DECIMAL(9,2);
+    DECLARE errormessage		VARCHAR(200);
+    
+	SELECT	product_category
+    INTO	var_productcategory
+    FROM	products
+    WHERE	productCode = param_productCode;
+    
+    -- Check if the product exists
+    IF (var_productcategory IS NULL) THEN
+		SET errormessage := "Product does not exist";
+		SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = errormessage;
+    END IF;
 
-DROP TABLE IF EXISTS 5D_pricing_variation_report;
-CREATE TABLE 5D_pricing_variation_report (
+	-- Check if the product is discontinued
+	IF (var_productcategory = 'D') THEN
+		SET errormessage := "Product is discontinued. No MSRP available";
+		SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = errormessage;
+    END IF;
+	
+    -- Check the current products table to determine if wholesale or retail
+    
+    SELECT	product_type
+    INTO	var_producttype
+    FROM	current_products
+    WHERE	productCode = param_productCode;
+    
+    -- Check if the product is retail
+    
+    IF (var_producttype = 'R') THEN
+		-- the product is retail
+        SELECT  MSRP
+        INTO	var_MSRP
+        FROM	product_pricing
+        WHERE	param_origdate BETWEEN startdate AND enddate
+        AND		productCode = param_productCode;
+        
+        -- Check if the price was available
+        IF (var_MSRP IS NULL) THEN
+			SET errormessage := CONCAT("MSRP of the product does not exist yet given the date of ", param_origdate);
+			SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = errormessage;
+        END IF;
+        RETURN var_MSRP;
+    ELSE
+		-- the product is wholesale
+        SELECT 	MSRP
+        INTO	var_MSRP
+        FROM	product_wholesale
+		WHERE	productCode = param_productCode;
+	
+		RETURN var_MSRP;
+    END IF;
+    
+END $$
+DELIMITER ;
+
+DROP TABLE IF EXISTS pricing_variation_report;
+CREATE TABLE pricing_variation_report (
     report_id INT,                  
     productCode VARCHAR(15),       
     productLine VARCHAR(255),       
@@ -15,73 +79,59 @@ CREATE TABLE 5D_pricing_variation_report (
     variation_percentage DECIMAL(5,2), 
     report_year INT,                
     report_month INT,               
-    PRIMARY KEY(report_id, productCode)
+    PRIMARY KEY(report_id, productCode, report_year, report_month)
 );
 
-DROP PROCEDURE IF EXISTS 5D_generate_priceVariationReport;
+DROP PROCEDURE IF EXISTS generate_priceVariationReport;
 DELIMITER $$
-CREATE PROCEDURE 5D_generate_priceVariationReport (param_productCode VARCHAR(15), param_report_year INT, param_report_month INT)
+CREATE PROCEDURE generate_priceVariationReport (param_productCode VARCHAR(15), param_report_year INT, param_report_month INT)
 BEGIN
     DECLARE report_id INT;
 
-   
-    INSERT INTO reports (report_name, report_type, created_by, report_description)
-    VALUES ('Average Pricing Variation Report', 'Pricing Variation', 'System', 'Average percentage of pricing variation for the product');
+    INSERT INTO reports_inventory (generationdate, generatedby, reportdesc, reporttype, time_dimension_year, time_dimension_month) 
+    VALUES (NOW(), 'System', 'Average percentage of pricing variation for the product', 'Pricing Variation', param_report_year, param_report_month);
     
     SET report_id = LAST_INSERT_ID();  
 
     
     INSERT INTO pricing_variation_report (report_id, productCode, productLine, current_MSRP, priceEach, variation_percentage, report_year, report_month)
-    SELECT 		report_id,
-				p.productCode,
-				pl.productLine 	  AS productLine, -- Get the product line
-				curr_pricing.MSRP AS current_MSRP,
-				od.priceEach 	  AS priceEach,
-				CASE 
-					WHEN od.priceEach IS NOT NULL AND od.priceEach != 0 
-					THEN ((curr_pricing.MSRP - od.priceEach) / od.priceEach) * 100 
-					ELSE NULL 
-				END AS variation_percentage,
-				param_report_year AS report_year,   
-				param_report_month AS report_month   
-    FROM 		products p		JOIN product_pricing curr_pricing 	ON p.productCode = curr_pricing.productCode
-								JOIN orderdetails od 				ON p.productCode = od.productCode
-								JOIN product_productlines pl 		ON p.productCode = pl.productCode  
-    WHERE 		p.productCode = param_productCode;
-
-    
-    SELECT 		AVG(variation_percentage) AS avg_variation_percentage
-    FROM 		pricing_variation_report
-    WHERE 		report_id = report_id;
+    SELECT 	 report_id,
+		 p.productCode,
+       		 pp.productLine,
+      		 getMSRP_2(p.productCode, o.orderdate) AS current_MSRP,
+      	 	 od.priceEach,
+        	 ROUND(((od.priceEach - getMSRP_2(p.productCode, o.orderdate)) / getMSRP_2(p.productCode, o.orderdate)) * 100, 2) AS variation_percentage,
+        	 param_report_year AS report_year,
+        	 param_report_month AS report_month
+    FROM 
+        	orders o
+        	JOIN orderdetails od ON o.orderNumber = od.orderNumber
+       	 	JOIN products p ON od.productCode = p.productCode
+        	JOIN product_productlines pp ON p.productCode = pp.productCode
+    WHERE 
+       	 	p.productCode = param_productCode
+        	AND YEAR(o.orderdate) = param_report_year
+        	AND MONTH(o.orderdate) = param_report_month
+        	AND o.status IN ('Shipped', 'Completed');
 
 END $$
-
 DELIMITER ;
 
 -- Test the procedure
-CALL 5D_generate_priceVariationReport('S10_2016', 2024, 10);  
+CALL generate_priceVariationReport('S10_2016', 2024, 10);  
 
 
-DROP EVENT IF EXISTS 5D_generate_priceVariationReport;
+DROP EVENT IF EXISTS event_generate_priceVariationReport;
 DELIMITER $$
-CREATE EVENT 5D_generate_priceVariationReport
+CREATE EVENT event_generate_priceVariationReport
 ON SCHEDULE EVERY 10 SECOND
 DO
 BEGIN
-	CALL 5D_generate_priceVariationReport('S10_1678', 2024, 9); 
+	CALL generate_priceVariationReport('S10_1678', 2024, 9); 
 END $$
 DELIMITER ;
 
-ALTER EVENT 5D_generate_priceVariationReport 				DISABLE;
-ALTER EVENT 5D_generate_priceVariationReport 				ENABLE;
+ALTER EVENT event_generate_priceVariationReport				DISABLE;
+ALTER EVENT event_generate_priceVariationReport				ENABLE;
 
-
-
- SHOW EVENTS;
- 
-
-
-
-
-
-
+-- SHOW EVENTS;

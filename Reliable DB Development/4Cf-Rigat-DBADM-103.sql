@@ -11,8 +11,7 @@ BEGIN
     IF (OLD.employee_type = 'S') AND (NEW.employee_type = 'N') THEN
         UPDATE salesRepAssignments
         SET endDate = CURDATE()
-        WHERE employeeNumber = NEW.employeeNumber
-          AND endDate IS NULL; -- Ensures only active assignments are affected
+        WHERE employeeNumber = NEW.employeeNumber;
     END IF;
 END $$
 DELIMITER ;
@@ -20,7 +19,7 @@ DELIMITER ;
 SHOW TRIGGERS;
 
 -- test1
--- should update the endDate to CURDATE if the endDate is null, it means assignment is still active
+-- should update the endDate to CURDATE
 -- UPDATE employees
 -- SET employee_type = 'N'
 -- WHERE employeeNumber = 1188;

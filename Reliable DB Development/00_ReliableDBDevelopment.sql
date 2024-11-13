@@ -2142,7 +2142,7 @@ DROP EVENT IF EXISTS 4AF_cancel_unshipped_orders_event;
 DELIMITER $$
 CREATE EVENT 4AF_cancel_unshipped_orders_event
 ON SCHEDULE 
-EVERY 5 SECOND 
+EVERY 7 DAY
 DO
 BEGIN
     UPDATE orders
