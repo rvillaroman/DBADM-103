@@ -1,7 +1,7 @@
 // DBADM-103
 
 // javac -cp ".;mysql-connector-j-9.0.0.jar" ManagementSystem.java
-// java -cp ".;C:\Users\XG755N\Documents\GitHub\DBADM-103\Transactional Management\EmployeeManagement\lib\mysql-connector-j-9.0.0.jar" ManagementSystem
+// java -cp ".;C:\Users\XG755N\Documents\GitHub\DBADM-103\Transaction Management Application\lib\mysql-connector-j-9.0.0.jar" ManagementSystem
 
 
 import java.sql.*;
