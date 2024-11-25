@@ -651,9 +651,11 @@ LOCK TIMING SUMMARY
         }
     }
 
-    // Office Management Menu
+    //officeManagementMenu
     private static void officeManagementMenu(Scanner scanner) {
-        while (true) {
+        boolean exit = false;
+
+        while (!exit) {
             System.out.println("\n=== Office Management Menu ===");
             System.out.println("1. View Office Details");
             System.out.println("2. Update Office Details");
@@ -661,6 +663,7 @@ LOCK TIMING SUMMARY
             System.out.println("4. Return to Main Menu");
             System.out.print("Enter your choice: ");
             int choice = scanner.nextInt();
+            scanner.nextLine();
 
             switch (choice) {
                 case 1:
@@ -677,6 +680,14 @@ LOCK TIMING SUMMARY
                 default:
                     System.out.println("Invalid choice. Please try again.");
             }
+              if(!exit){
+                 System.out.println("\nPress Enter to continue...");
+                 try {
+                    System.in.read();
+                 } catch (Exception e) {
+                    e.printStackTrace();
+                }
+             }
         }
     }
 
